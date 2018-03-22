@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 
 import datetime
+import time
 from .data import getBoardDict
 from . import CONFIG, app
 from .parse import processEvent, parseData
 from flask import request, render_template, make_response
+
+
+def getEpoch():
+    return time.mktime(datetime.datetime.now().timetuple())
 
 
 @app.route('/', methods=['GET'])
@@ -50,6 +55,6 @@ def genericEvent():
     data['host'] = None
     data['session'] = None
     # Time is calculated
-    data['last_seen'] = datetime.datetime.now()
+    data['last_seen'] = getEpoch()
     parseData(data)
     return "Valid"

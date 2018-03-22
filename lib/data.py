@@ -40,12 +40,8 @@ def getHostData(host):
     # Add the data to a dictionary
     status = {}
     status['ip'] = host
-    # Set the last seen time based on the results
-    if isinstance(last, type(None)):
-        # Is this statement redudant?
-        last = None
-    else:
-        last = getTimeDelta(last)
+    # Set the last seen time based on time calculations
+    last = getTimeDelta(last)
     # Add only the values that are not None
     redisdata = [('Host', h), ('Session', s), ('Type', t), ('Last seen', last)]
     for item in redisdata:
@@ -55,10 +51,10 @@ def getHostData(host):
 
 
 def getTimeDelta(ts):
-        try:
-            checkin = datetime.datetime.fromtimestamp(float(ts))
-        except Exception as E:
-            return 0
+    try:
+        checkin = datetime.datetime.fromtimestamp(float(ts))
         diff = datetime.datetime.now() - checkin
         minutes = int(diff.total_seconds()/60)
         return minutes
+    except Exception as E:
+        return None
