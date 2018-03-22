@@ -17,10 +17,14 @@ hand modifying the sample config `toplogy.json`.
 Setup slack information in the `config.yml` file and modify the database settings
 if you are running the Redis DB somewhere else.
 
+**Update the server IP and port in `config.yml`**
+
 ## Setup Frameworks
 If you are adding hooks to frameworks such as cobaltstrike or empire,
-run the install scripts for each client.
-`./clients/empire/install`
+run the install scripts for each framework and client.
+
+The install scripts will be rendered based off of the current configuration by
+going to `http://localhost/install/empire` or any other suppored framework.
 
 ## Run
 Run `./pwnboard.py` from the commandline
