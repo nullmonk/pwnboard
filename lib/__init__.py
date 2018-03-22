@@ -11,12 +11,12 @@ r = redis.StrictRedis(host='localhost', charset="utf-8", decode_responses=True)
 # Create the Flask app
 app = Flask(__name__, static_url_path='/static')
 app.debug = True
-# Create the Config dict
+# Create the topology dict
 CONFIG = {}
-CONFIG_FILE = 'config.json'
+CONFIG_FILE = 'topology.json'
 # Load a configuration file for the data
 with open(CONFIG_FILE) as of:
-    CONFIG = json.load(of)
+    CONFIG.update(json.load(of))
 # Generate a base host list based on the infrustructure configuration
 hostsBase = []
 for network in CONFIG['networks']:

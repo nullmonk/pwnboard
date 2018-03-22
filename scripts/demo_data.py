@@ -15,7 +15,7 @@ def init():
     Initialize all the data and the config info from a file
     '''
     global CONFIG
-    CONFIG_FILE = 'config.json'
+    CONFIG_FILE = 'topology.json'
     # Load a configuration file for the data
     with open(CONFIG_FILE) as of:
         CONFIG = json.load(of)
