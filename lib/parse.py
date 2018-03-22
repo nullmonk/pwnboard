@@ -86,7 +86,9 @@ class Status(object):
         self.type = type
         self.last_seen = last_seen
 
-        self.redis = redis.StrictRedis(host='localhost')
+        self.redis = redis.StrictRedis(host=CONFIG['database']['server'],
+                                       port=CONFIG['database']['port'],
+                                       charset='utf-8')
 
     def __str__(self,):
         return "ip: %s, host: %s, session: %s, type: %s, last_seen: %s" % (
