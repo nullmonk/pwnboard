@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import redis
-from . import r
+from . import r, CONFIG
 
 
 def processEvent(event):
@@ -13,6 +13,14 @@ def processEvent(event):
         parse_cobaltstrike(event)
     else:
         parse_linux(event)
+
+
+def parseData(data):
+    '''
+    Parse updates that come in via POST to the server
+    '''
+    status = Status(**data)
+    status.save()
 
 
 def parse_linux(event):
