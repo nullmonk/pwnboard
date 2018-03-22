@@ -2,23 +2,38 @@
 
 import datetime
 import time
-from .data import getBoardDict
+from .data import getBoardDict, getEpoch
 from . import CONFIG, app
 from .parse import processEvent, parseData
 from flask import request, render_template, make_response, Response
 
 
-def getEpoch():
-    return time.mktime(datetime.datetime.now().timetuple())
+# The cache of the main board page
+BOARDCACHE = ""
+BOARDCACHE_TIME = 0
 
 
 @app.route('/', methods=['GET'])
 def index():
+    '''
+    Return the board with the most recent data (cached for 10 seconds)
+    '''
+    html = ""
+    global BOARDCACHE
+    global BOARDCACHE_TIME
+    if (getEpoch() - BOARDCACHE_TIME) < 10 and BOARDCACHE != "":
+        print("Pulling board html from cache")
+        # return the cached dictionary
+        return make_response(BOARDCACHE)
+    # Get the board data and render the template
     error = ""
     board = getBoardDict()
-    resp = make_response(render_template('index.html', error=error,
-                         board=board, teams=CONFIG['teams']))
-    return resp
+    html = render_template('index.html', error=error,
+                         board=board, teams=CONFIG['teams'])
+    # Update the cache and the cache time
+    BOARDCACHE_TIME = getEpoch()
+    BOARDCACHE = html
+    return make_response(html)
 
 
 @app.route('/slack-events', methods=['POST'])

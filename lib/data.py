@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 import datetime
+import time
 from . import CONFIG, r
+
+
+def getEpoch():
+    '''
+    Return the current Epoch time
+    '''
+    return time.mktime(datetime.datetime.now().timetuple())
 
 
 def getBoardDict():
