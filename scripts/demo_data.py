@@ -5,7 +5,7 @@ import random
 import datetime as dt
 import time
 import json
-
+import yaml
 
 CONFIG = {}
 
@@ -15,10 +15,12 @@ def init():
     Initialize all the data and the config info from a file
     '''
     global CONFIG
-    CONFIG_FILE = 'config.json'
+    CONFIG_FILE = 'topology.json'
     # Load a configuration file for the data
     with open(CONFIG_FILE) as of:
-        CONFIG = json.load(of)
+        CONFIG.update(json.load(of))
+    with open('config.yml') as of:
+        CONFIG.update(yaml.load(of))
     # Generate a base host list based on the infrustructure configuration
     hostsBase = []
     for network in CONFIG['networks']:
@@ -61,7 +63,9 @@ def populateData():
     # Call the pwnboard init function to read the teams from the CONFIG
     init()
     # Load the database
-    r = redis.StrictRedis(host='localhost', charset="utf-8")
+    r = redis.StrictRedis(host=CONFIG['database']['server'],
+                          port=CONFIG['database']['port'],
+                          charset='utf-8')
     # Loop through each box for each team
     for team in CONFIG['teams']:
         for basehost in CONFIG['base_hosts']:
