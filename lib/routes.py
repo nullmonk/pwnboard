@@ -37,10 +37,9 @@ def slack_events():
 
 @app.route('/generic', methods=['POST'])
 def genericEvent():
-    req = request.json
+    req = request.get_json(force=True)
     if req.get('challenge', None):
         return req.json['challenge']
-
     data = {}
     # Type and IP are required
     if 'type' in req:
