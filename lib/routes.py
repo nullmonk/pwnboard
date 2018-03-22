@@ -21,7 +21,8 @@ def index():
     html = ""
     global BOARDCACHE
     global BOARDCACHE_TIME
-    if (getEpoch() - BOARDCACHE_TIME) < 10 and BOARDCACHE != "":
+    if ((getEpoch() - BOARDCACHE_TIME) < CONFIG.get('cache_time',10)
+        and BOARDCACHE != ""):
         print("Pulling board html from cache")
         # return the cached dictionary
         return make_response(BOARDCACHE)
