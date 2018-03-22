@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+'''
+This script sends callback information to pwnboard everytime an empire agent
+calls back. This is achieved by adding a small piece of code to the Agents.py
+file.
+{#
+This file is meant to be rendered as a Jinja2 template
+#}
+Author: Micah Martin (github.com/micahjmartin)
+'''
+import sys
+from os.path import join, isfile
+from shutil import copyfile
+
+
+# The code to add to the empire file to allow it to call back
+payload = ""
+payload += "        # Update the PWNboard everytime the agent checks in\n"
+payload += "        import requests\n"
+payload += "        try:\n"
+payload += "            # The host to call back to\n"
+payload += "            host = 'http://{{server}}:{{port}}/generic'\n"
+payload += "            sessdata = self.get_agent_db(sessionID)\n"
+payload += "            # the first internal IP\n"
+payload += "            ip = sessdata['internal_ip'].split()[0]\n"
+payload += "            headers = {'Content-Type': 'application/json',\n"
+payload += "                       'Connection': 'Close'}\n"
+payload += "            data = json.dumps({'ip': ip, 'type': 'empire'})\n"
+payload += "            # Make the request\n"
+payload += "            requests.post(host,data=data, headers=headers)\n"
+payload += "        except:\n"
+payload += "            pass\n"
+# The function definition to add the payload into
+search = ""
+search += "def update_agent_lastseen_db(self, sessionID, current_time=None):\n"
+search += '        """\n'
+search += "        Update the agent's last seen timestamp in the database.\n"
+search += '        """\n'
+
+
+def main():
+    '''
+    Get the agents file or return a usage message
+    '''
+    try:
+        path = sys.argv[1]
+        agentsFile = join(path, "lib/common/agents.py")
+        if not isfile(agentsFile):
+            raise Exception("Not a file")
+    except Exception as E:
+        print('[!] Please pass the directory of Empire as an argument')
+        quit()
+    # If there is already a backup, move it into the original
+    if isfile(agentsFile+".bak"):
+        copyfile(agentsFile+".bak", agentsFile)
+    else:
+        # Back up the file before we insert anything into it
+        copyfile(agentsFile, agentsFile+".bak")
+    # Read the contents of the file
+    with open(agentsFile, "r") as f:
+        contents = f.read()
+    # Find the index to insert the program into
+    index = contents.index(search) + len(search)
+    # Get the new content with the updated function
+    newcont = contents[:index] + payload + contents[index:]
+    # write the new content to the file
+    with open(agentsFile, "w") as f:
+        f.write(newcont)
+    print("[+] Empire Agents file updated. Please restart empire")
+
+
+if __name__ == '__main__':
+    main()

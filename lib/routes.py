@@ -5,7 +5,7 @@ import time
 from .data import getBoardDict
 from . import CONFIG, app
 from .parse import processEvent, parseData
-from flask import request, render_template, make_response
+from flask import request, render_template, make_response, Response
 
 
 def getEpoch():
@@ -37,10 +37,9 @@ def slack_events():
 
 @app.route('/generic', methods=['POST'])
 def genericEvent():
-    req = request.json
+    req = request.get_json(force=True)
     if req.get('challenge', None):
         return req.json['challenge']
-
     data = {}
     # Type and IP are required
     if 'type' in req:
@@ -58,3 +57,21 @@ def genericEvent():
     data['last_seen'] = getEpoch()
     parseData(data)
     return "Valid"
+
+
+@app.route('/install/<tool>/', methods=['GET'])
+@app.route('/install/<tool>', methods=['GET'])
+def installTools(tool):
+    '''
+    Returns a script that can be used as an installer for the specific tool.
+    E.g. If you request '/install/empire' you will get a script to run that
+    will update your empire with the needed functions
+    '''
+    server = CONFIG.get('pwnboard_server', 'localhost')
+    port = CONFIG.get('pwnboard_port', 80)
+    if tool in ('empire', ):
+        # Render the empire script with the needed variables
+        return Response(render_template('clients/empire.j2',
+                                        server=server, port=port),
+                        mimetype='text/plain')
+    return ""

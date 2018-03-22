@@ -4,4 +4,5 @@ slack-token: ""
 database:
   server: localhost
   port: 6379
-
+pwnboard_server: localhost
+pwnboard_port: 80
