@@ -1,23 +1,34 @@
 # PWNboard
-Updated pwnboard for RIT redteam engagements and competitions
+PWNboard for RIT redteam engagements and competitions
 
-# Install
+Modified version of ztgrace/pwnboard
+
+# Running the PWNboard
+## Install
+```
 apt-get install -y redis-server python3-redis python3-flask python3-yaml
+git clone https://github.com/micahjmartin/pwnboard
+```
+## Configure
+Configure the topology json file by running `./scripts/generate_topo.py` or by
+hand modifying the sample config `toplogy.json`.
 
-# Slack Information
 
-Ensure that the slackbot cna script (cobaltstrike) and the helper.py script (empire) has the proper Slack API webhook 
+Setup slack information in the `config.yml` file and modify the database settings
+if you are running the Redis DB somewhere else.
 
-# Empire
+## Setup Frameworks
+If you are adding hooks to frameworks such as cobaltstrike or empire,
+run the install scripts for each client.
+`./clients/empire/install`
 
-copy the helper.py and agent.py scripts into empire
+## Run
+Run `./pwnboard.py` from the commandline
 
-# Pwnboard Specific
+# Future Features
+* Init script to help configure and use the program
+* Reset the db before starting an engagement
+* Click on a host to track the beacons REQUIRE DB UPDATE
 
-Ensure that you add the channel ID to line 62 of pwnboard.py
-
-Network information configured at the top
-
-Headings modified in ./templates/index.html
 
 ![pwnboard](https://raw.githubusercontent.com/micahjmartin/pwnboard/master/img/PWNboard.png)
