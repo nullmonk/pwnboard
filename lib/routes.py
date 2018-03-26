@@ -93,4 +93,11 @@ def installTools(tool):
         return Response(render_template('clients/empire.j2',
                                         server=server, port=port),
                         mimetype='text/plain')
+    if tool in ('cobaltstrike', "cs"):
+        # Render the cobaltstrike script with the needed variables
+        logger.info("{} requested cobaltstrike install script".format(
+                                                request.remote_addr))
+        return Response(render_template('clients/cobaltstrike.j2',
+                                        server=server, port=port),
+                        mimetype='text/plain')
     return ""
