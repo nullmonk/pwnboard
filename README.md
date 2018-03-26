@@ -25,7 +25,7 @@ run the install scripts for each framework and client.
 The install scripts will be rendered based off of the current configuration file.
 
 ### Currently supported frameworks:
-**CobaltStrike** `http://localhost/install/cobaltstrike/ or `/install/cs`
+**CobaltStrike** `http://localhost/install/cobaltstrike/` or `/install/cs`
 
 **Empire** `https://localhost/install/empire`
 
