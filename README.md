@@ -22,9 +22,12 @@ if you are running the Redis DB somewhere else.
 ## Setup Frameworks
 If you are adding hooks to frameworks such as cobaltstrike or empire,
 run the install scripts for each framework and client.
+The install scripts will be rendered based off of the current configuration file.
 
-The install scripts will be rendered based off of the current configuration by
-going to `http://localhost/install/empire` or any other suppored framework.
+### Currently supported frameworks:
+**CobaltStrike** `http://localhost/install/cobaltstrike/ or `/install/cs`
+
+**Empire** `https://localhost/install/empire`
 
 ## Run
 Run `./pwnboard.py` from the commandline
