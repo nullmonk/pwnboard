@@ -10,7 +10,7 @@ from flask import (request, render_template, make_response, Response, url_for,
 # The cache of the main board page
 BOARDCACHE = ""
 BOARDCACHE_TIME = 0
-
+BOARDCACHE_UPDATED = True
 
 @app.route('/', methods=['GET'])
 def index():
@@ -21,8 +21,9 @@ def index():
     log = logging.getLogger('werkzeug')
     global BOARDCACHE
     global BOARDCACHE_TIME
+    global BOARDCACHE_UPDATED
     if ((getEpoch() - BOARDCACHE_TIME) < CONFIG.get('cache_time',10)
-        and BOARDCACHE != ""):
+        or not BOARDCACHE_UPDATED):
         log.info("Pulling board html from cache")
         # return the cached dictionary
         return make_response(BOARDCACHE)
@@ -35,6 +36,7 @@ def index():
     # Update the cache and the cache time
     BOARDCACHE_TIME = getEpoch()
     BOARDCACHE = html
+    BOARDCACHE_UPDATED = False
     return make_response(html)
 
 
@@ -49,6 +51,9 @@ def slack_events():
     if res.get('event', None) and res.get('event')['channel'] == '':
         processEvent(res['event'])
 
+    # Tell us that new data has come
+    global BOARDCACHE_UPDATED
+    BOARDCACHE_UPDATED = True
     return ""
 
 
@@ -75,6 +80,9 @@ def genericEvent():
     parseData(data)
     logger.info("{} updated beacon for {} from {}".format(request.remote_addr,
                                                    data['ip'], data['type']))
+    # Tell us that new data has come
+    global BOARDCACHE_UPDATED
+    BOARDCACHE_UPDATED = True
     return "Valid"
 
 
