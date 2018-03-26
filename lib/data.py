@@ -51,12 +51,28 @@ def getHostData(host):
     # Set the last seen time based on time calculations
     last = getTimeDelta(last)
     # Add only the values that are not None
-    redisdata = [('Host', h), ('Session', s), ('Type', t), ('Last seen', last)]
+    #redisdata = [('Host', h), ('Session', s), ('Type', t), ('Last seen', last)]
+    # We dont actually need session and host
+    redisdata = [('Type', t), ('Last seen', last)]
     for item in redisdata:
         if item[1] is not None:
             status[item[0]] = item[1]
     return status
 
+
+def getAlert():
+    '''
+    Pull the alert message from redis if is is recent.
+    Return nothing if it is not recent
+    '''
+    time, msg = r.hmget("alert", ('time', 'message'))
+    time = getTimeDelta(time)
+    if time is None or msg is None:
+        return ""
+    # If the time is within X minutes, display the message
+    if time < CONFIG.get('alerttime',1):
+        return msg
+    return ""
 
 def getTimeDelta(ts):
     try:

@@ -6,9 +6,7 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script> <!-- Latest compiled and minified JavaScript -->
         <link href='https://fonts.googleapis.com/css?family=Titillium+Web:600,400' rel='stylesheet' type='text/css' />
         <link href='https://fonts.googleapis.com/css?family=Jura:400,600' rel='stylesheet' type='text/css' />
-        {# Comment this out until we create it
         <link rel='stylesheet' href='/static/pwnboard.css' type='text/css' />
-        #}
         <meta http-equiv="refresh" content="10">
     </head>
     <body>
@@ -35,9 +33,17 @@
                         <td><b>{{ row['name'] }}</b></td>
                         {% for host in row['hosts'] %}
                             {% if 'Last seen' in host and host['Last seen'] < 5 %}
-                                <td class="bg-success">
+                                {% if alttheme %}
+                                    <td class="bg-danger">
+                                {% else %}
+                                    <td class="bg-success">
+                                {% endif %}
                             {% else %}
-                                <td class="bg-danger">
+                                {% if alttheme %}
+                                    <td class="bg-primary">
+                                {% else %}
+                                    <td class="bg-danger">
+                                {% endif %}
                             {% endif %}
                             <b>{{ host.pop('ip') }}</b><br/>
                             

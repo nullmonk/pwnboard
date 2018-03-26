@@ -1,0 +1,46 @@
+<html>
+    <head>
+        <title>Update alert message</title>
+        <!-- Latest compiled and minified CSS -->
+        <style>
+            input, textarea{
+                margin-top: 5px;
+                margin-bottom: 5px;
+                height: 46;
+                width: 100%;
+                display: block;
+                padding: 6px 12px;
+                font-size: 20px;
+                font-weight: normal;
+                line-height: 1.42857143;
+                text-align: center;
+                white-space: nowrap;
+                vertical-align: middle;
+                background-color: #f5f5f5;
+                color: #7d7d7d;
+                border: 1px solid #cccccc;
+                border-radius: 4px;
+            }
+            textarea {
+                height: 60%;
+                text-align: left;
+            }
+            .vertical-center { min-height: 85%;  display: flex; align-items: center; }
+            .horizontal-center { margin: auto; width: 40%; min-width: 250px; max-width: 600px; }
+        </style>
+    </head>
+<body>
+    <div class="vertical-center">
+        <div class="horizontal-center" id="centered_group">
+            <h1>Update Allert</h1>
+            <p>Update the alert message with the given string.
+            The message will be displayed for {{ alerttime }} minutes.</p>
+            <form action="/setmessage" id="textform" method="post">
+            <input name="message"></input>
+            <input type="submit" value="Submit"></input>
+            <input type="hidden" name="browser" value="1"></input>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

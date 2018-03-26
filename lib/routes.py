@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 import logging
-from .data import getBoardDict, getEpoch
-from . import CONFIG, app, logger
+from .data import getBoardDict, getEpoch, getAlert
+from . import CONFIG, app, logger, r, loadConfig
 from .parse import processEvent, parseData
-from flask import request, render_template, make_response, Response
+from flask import (request, render_template, make_response, Response, url_for,
+                   redirect)
 
 
 # The cache of the main board page
@@ -26,9 +27,10 @@ def index():
         # return the cached dictionary
         return make_response(BOARDCACHE)
     # Get the board data and render the template
-    error = ""
+    error = getAlert()
     board = getBoardDict()
-    html = render_template('index.html', error=error,
+    alttheme = CONFIG.get('alternate_theme', False)
+    html = render_template('index.html', error=error, alttheme=alttheme,
                          board=board, teams=CONFIG['teams'])
     # Update the cache and the cache time
     BOARDCACHE_TIME = getEpoch()
@@ -101,3 +103,33 @@ def installTools(tool):
                                         server=server, port=port),
                         mimetype='text/plain')
     return ""
+
+
+@app.route('/setmessage', methods=['GET', 'POST'])
+def setmessage():
+    '''
+    Updates the message alert at the top of the page
+    '''
+    # If it is a get, return a text box to set the message
+    if request.method == 'GET':
+        return Response(render_template('setmessage.html',
+                                        alerttime=CONFIG.get('alerttime', 1)+1))
+    msg = request.form['message']
+    logger.info('{} updated message to "{}"'.format(request.remote_addr, msg))
+    # The data stored in redis
+    data = {}
+    # Update the time the message was set
+    data['time'] = getEpoch()
+    data['message'] = msg
+    # Store the message in the redis db
+    r.hmset('alert', data)
+    # If the message was pushed via the browser, redirect it home
+    if request.form.get('browser',"0") == "1":
+        return redirect(url_for('index'))
+    # if its an API call then return valid
+    return "Valid"
+
+@app.route('/reload', methods=['GET'])
+def relaod():
+    loadConfig()
+    return redirect(url_for('index'))
