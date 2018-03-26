@@ -7,3 +7,4 @@ database:
 pwnboard_server: localhost
 pwnboard_port: 80
 cache_time: 10
+logfile: pwnboard.log

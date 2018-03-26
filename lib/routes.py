@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
-
-import datetime
-import time
+import logging
 from .data import getBoardDict, getEpoch
-from . import CONFIG, app
+from . import CONFIG, app, logger
 from .parse import processEvent, parseData
 from flask import request, render_template, make_response, Response
 
@@ -19,11 +17,12 @@ def index():
     Return the board with the most recent data (cached for 10 seconds)
     '''
     html = ""
+    log = logging.getLogger('werkzeug')
     global BOARDCACHE
     global BOARDCACHE_TIME
     if ((getEpoch() - BOARDCACHE_TIME) < CONFIG.get('cache_time',10)
         and BOARDCACHE != ""):
-        print("Pulling board html from cache")
+        log.info("Pulling board html from cache")
         # return the cached dictionary
         return make_response(BOARDCACHE)
     # Get the board data and render the template
@@ -72,6 +71,8 @@ def genericEvent():
     # Time is calculated
     data['last_seen'] = getEpoch()
     parseData(data)
+    logger.info("{} updated beacon for {} from {}".format(request.remote_addr,
+                                                   data['ip'], data['type']))
     return "Valid"
 
 
@@ -87,6 +88,8 @@ def installTools(tool):
     port = CONFIG.get('pwnboard_port', 80)
     if tool in ('empire', ):
         # Render the empire script with the needed variables
+        logger.info("{} requested empire install script".format(
+                                                request.remote_addr))
         return Response(render_template('clients/empire.j2',
                                         server=server, port=port),
                         mimetype='text/plain')

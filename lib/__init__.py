@@ -6,6 +6,7 @@ from flask import Flask
 import redis
 import json
 import yaml
+import logging
 
 # Create the Flask app
 app = Flask(__name__, static_url_path='/static')
@@ -34,6 +35,8 @@ CONFIG['base_hosts'] = hostsBase
 r = redis.StrictRedis(host=CONFIG['database']['server'],
                       port=CONFIG['database']['port'],
                       charset='utf-8', decode_responses=True)
+
+logger = logging.getLogger('pwnboard')
 
 # Ignore a few errors here as routes arn't "used" and "not at top of file"
 from . import routes  # noqa: E402, F401
