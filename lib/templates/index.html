@@ -32,7 +32,7 @@
                     <tr>
                         <td><b>{{ row['name'] }}</b></td>
                         {% for host in row['hosts'] %}
-                            {% if 'Last seen' in host and host['Last seen'] < 5 %}
+                            {% if 'online' in host and host.pop('online') %}
                                 {% if alttheme %}
                                     <td class="bg-danger">
                                 {% else %}

@@ -9,6 +9,26 @@ import yaml
 import logging
 
 
+# Create the topology dict
+CONFIG = {}
+
+
+def getConfig(key, default=None):
+    '''
+    Get a value from the config. If it is not there, use the default
+    and log it
+    '''
+    retval = CONFIG
+    for i in key.split("/"):
+        if i in retval:
+            retval = retval[i]
+        else:
+            logger.warn("Missing config value {}, using {}".format(key,
+                                                                   default))
+            return default
+    return retval
+
+
 def loadConfig():
     global CONFIG
     TOPO_FILE = 'topology.json'
@@ -30,19 +50,35 @@ def loadConfig():
     CONFIG['base_hosts'] = hostsBase
 
 
-
 # Create the Flask app
 app = Flask(__name__)
 app.config['STATIC_FOLDER'] = "lib/static"
-# Create the topology dict
-CONFIG = {}
+logger = logging.getLogger('pwnboard')
 loadConfig()
+logfil = getConfig("server/logfile", "")
+# Get the pwnboard logger
+# Create a log formatter
+FMT = logging.Formatter(fmt="[%(asctime)s] %(levelname)s: %(message)s",
+                        datefmt="%I:%M:%S")
+# Create a file handler
+if logfil != "":
+    FH = logging.FileHandler(logfil)
+    FH.setFormatter(FMT)
+    logger.addHandler(FH)
+# Create a console logging handler
+SH = logging.StreamHandler()
+SH.setFormatter(FMT)
+logger.addHandler(SH)
+logger.setLevel(logging.DEBUG)
 # Create the redis object. Make sure that we decode our responses
-r = redis.StrictRedis(host=CONFIG['database']['server'],
-                      port=CONFIG['database']['port'],
+rserver = getConfig('database/server','localhost')
+rport = getConfig('database/port', 6379)
+r = redis.StrictRedis(host=rserver, port=rport,
                       charset='utf-8', decode_responses=True)
 
-logger = logging.getLogger('pwnboard')
+
+
+
 
 # Ignore a few errors here as routes arn't "used" and "not at top of file"
 from . import routes  # noqa: E402, F401

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import datetime
 import time
-from . import CONFIG, r
+from . import getConfig, r, logger
+from .tools import sendSlackMsg
 
 
 def getEpoch():
@@ -17,8 +18,8 @@ def getBoardDict():
     Get all the DB info for each host
     '''
     # Get the teams and the basehost list from the config
-    teams = CONFIG.get("teams", ())
-    baseHosts = CONFIG.get("base_hosts", ())
+    teams = getConfig("teams", ())
+    baseHosts = getConfig("base_hosts", ())
     # Loop through each host for each team and get the data
     # Turn this data into JSON for the Jinja template
     board = []
@@ -43,13 +44,23 @@ def getHostData(host):
     type - The last service the host called back through
     '''
     # Request the data from the database
-    h, s, t, last = r.hmget(host, ('host', 'session',
-                                   'type', 'last_seen'))
+    h, s, t, last, o = r.hmget(host, ('host', 'session',
+                                   'type', 'last_seen', 'online'))
     # Add the data to a dictionary
     status = {}
     status['ip'] = host
     # Set the last seen time based on time calculations
     last = getTimeDelta(last)
+    if last is None or last > getConfig('host_timeout', 2):
+        if o == "True":
+            logger.warn("{} offline".format(host))
+            sendSlackMsg("{} went offline".format(host))
+        status['online'] = False
+    else:
+        status['online'] = True
+
+    r.hmset(host, {'online':status['online']})
+
     # Add only the values that are not None
     #redisdata = [('Host', h), ('Session', s), ('Type', t), ('Last seen', last)]
     # We dont actually need session and host
@@ -70,7 +81,7 @@ def getAlert():
     if time is None or msg is None:
         return ""
     # If the time is within X minutes, display the message
-    if time < CONFIG.get('alerttime',1):
+    if time < getConfig('alert_timeout',1):
         return msg
     return ""
 

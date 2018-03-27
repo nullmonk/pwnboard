@@ -36,7 +36,8 @@
             <p>Update the alert message with the given string.
             The message will be displayed for {{ alerttime }} minutes.</p>
             <form action="/setmessage" id="textform" method="post">
-            <input name="message"></input>
+            <input name="user" placeholder="What's your name?"></input>
+            <input name="message" placeholder="What's your message?"></input>
             <input type="submit" value="Submit"></input>
             <input type="hidden" name="browser" value="1"></input>
             </form>

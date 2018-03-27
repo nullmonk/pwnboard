@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 import logging
 from .data import getBoardDict, getEpoch, getAlert
-from . import CONFIG, app, logger, r, loadConfig
+from . import getConfig, app, logger, r, loadConfig
 from .parse import processEvent, parseData
 from flask import (request, render_template, make_response, Response, url_for,
                    redirect)
-
+from .tools import sendSlackMsg
 
 # The cache of the main board page
 BOARDCACHE = ""
@@ -19,30 +19,33 @@ def index():
     '''
     html = ""
     log = logging.getLogger('werkzeug')
-    global BOARDCACHE
-    global BOARDCACHE_TIME
-    global BOARDCACHE_UPDATED
     # Find the time since the last cache
     # The server will return the cache in two situations
     #  1. It has been less than 'cache_time' since the last cache
     #  2. There has been no new data since the last cache AND the cache is
     #     younger than 30 seconds
-    ctime = getEpoch() - BOARDCACHE_TIME
-    if (ctime < CONFIG.get('cache_time',10)
-        or (not BOARDCACHE_UPDATED and ctime < 30)):
-        log.info("Pulling board html from cache")
-        # return the cached dictionary
-        return make_response(BOARDCACHE)
+    cache = getConfig('server/cache', True)
+    if cache:
+        global BOARDCACHE
+        global BOARDCACHE_TIME
+        global BOARDCACHE_UPDATED
+        ctime = getEpoch() - BOARDCACHE_TIME
+        if (ctime < getConfig('server/cache_time',10)
+            or (not BOARDCACHE_UPDATED and ctime < 30)):
+            log.info("Pulling board html from cache")
+            # return the cached dictionary
+            return make_response(BOARDCACHE)
     # Get the board data and render the template
     error = getAlert()
     board = getBoardDict()
-    alttheme = CONFIG.get('alternate_theme', False)
+    alttheme = getConfig('alternate_theme', False)
     html = render_template('index.html', error=error, alttheme=alttheme,
-                         board=board, teams=CONFIG['teams'])
+                         board=board, teams=getConfig('teams',[]))
     # Update the cache and the cache time
-    BOARDCACHE_TIME = getEpoch()
-    BOARDCACHE = html
-    BOARDCACHE_UPDATED = False
+    if cache:
+        BOARDCACHE_TIME = getEpoch()
+        BOARDCACHE = html
+        BOARDCACHE_UPDATED = False
     return make_response(html)
 
 
@@ -100,8 +103,8 @@ def installTools(tool):
     E.g. If you request '/install/empire' you will get a script to run that
     will update your empire with the needed functions
     '''
-    server = CONFIG.get('pwnboard_server', 'localhost')
-    port = CONFIG.get('pwnboard_port', 80)
+    server = getConfig('server/host', 'localhost')
+    port = getConfig('server/port', 80)
     if tool in ('empire', ):
         # Render the empire script with the needed variables
         logger.info("{} requested empire install script".format(
@@ -127,9 +130,16 @@ def setmessage():
     # If it is a get, return a text box to set the message
     if request.method == 'GET':
         return Response(render_template('setmessage.html',
-                                        alerttime=CONFIG.get('alerttime', 1)+1))
-    msg = request.form['message']
-    logger.info('{} updated message to "{}"'.format(request.remote_addr, msg))
+                                        alerttime=getConfig('alert_timeout',
+                                                            1)+1))
+    msg = request.form.get('message', "")
+    if msg == "":
+        return "Invalid: 'message' must contain text"
+    user = request.form.get('user', "")
+    if user == "":
+        user = request.remote_addr
+    sendSlackMsg('{} says "{}"'.format(user, msg))
+    logger.info('{} updated message to "{}"'.format(user, msg))
     # The data stored in redis
     data = {}
     # Update the time the message was set
