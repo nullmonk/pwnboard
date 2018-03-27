@@ -45,7 +45,7 @@ def getHostData(host):
     '''
     # Request the data from the database
     h, s, t, last, o = r.hmget(host, ('host', 'session',
-                                   'type', 'last_seen', 'online'))
+                                      'type', 'last_seen', 'online'))
     # Add the data to a dictionary
     status = {}
     status['ip'] = host
@@ -58,11 +58,11 @@ def getHostData(host):
         status['online'] = False
     else:
         status['online'] = True
-
-    r.hmset(host, {'online':status['online']})
+    # Write the status to the database
+    r.hmset(host, {'online': status['online']})
 
     # Add only the values that are not None
-    #redisdata = [('Host', h), ('Session', s), ('Type', t), ('Last seen', last)]
+    # redisdata=[('Host', h), ('Session', s), ('Type', t), ('Last seen', last)]
     # We dont actually need session and host
     redisdata = [('Type', t), ('Last seen', last)]
     for item in redisdata:
@@ -81,11 +81,15 @@ def getAlert():
     if time is None or msg is None:
         return ""
     # If the time is within X minutes, display the message
-    if time < getConfig('alert_timeout',1):
+    if time < getConfig('alert_timeout', 1):
         return msg
     return ""
 
+
 def getTimeDelta(ts):
+    '''
+    Print the number of minutes between now and the last timestamp
+    '''
     try:
         checkin = datetime.datetime.fromtimestamp(float(ts))
         diff = datetime.datetime.now() - checkin

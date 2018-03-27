@@ -12,6 +12,7 @@ BOARDCACHE = ""
 BOARDCACHE_TIME = 0
 BOARDCACHE_UPDATED = True
 
+
 @app.route('/', methods=['GET'])
 def index():
     '''
@@ -30,8 +31,8 @@ def index():
         global BOARDCACHE_TIME
         global BOARDCACHE_UPDATED
         ctime = getEpoch() - BOARDCACHE_TIME
-        if (ctime < getConfig('server/cache_time',10)
-            or (not BOARDCACHE_UPDATED and ctime < 30)):
+        if (ctime < getConfig('server/cache_time', 10) or
+                (not BOARDCACHE_UPDATED and ctime < 30)):
             log.info("Pulling board html from cache")
             # return the cached dictionary
             return make_response(BOARDCACHE)
@@ -40,7 +41,7 @@ def index():
     board = getBoardDict()
     alttheme = getConfig('alternate_theme', False)
     html = render_template('index.html', error=error, alttheme=alttheme,
-                         board=board, teams=getConfig('teams',[]))
+                           board=board, teams=getConfig('teams', ()))
     # Update the cache and the cache time
     if cache:
         BOARDCACHE_TIME = getEpoch()
@@ -87,8 +88,9 @@ def genericEvent():
     # Time is calculated
     data['last_seen'] = getEpoch()
     parseData(data)
-    logger.info("{} updated beacon for {} from {}".format(request.remote_addr,
-                                                   data['ip'], data['type']))
+    logger.info(
+        "{} updated beacon for {} from {}".format(request.remote_addr,
+                                                  data['ip'], data['type']))
     # Tell us that new data has come
     global BOARDCACHE_UPDATED
     BOARDCACHE_UPDATED = True
@@ -148,10 +150,11 @@ def setmessage():
     # Store the message in the redis db
     r.hmset('alert', data)
     # If the message was pushed via the browser, redirect it home
-    if request.form.get('browser',"0") == "1":
+    if request.form.get('browser', "0") == "1":
         return redirect(url_for('index'))
     # if its an API call then return valid
     return "Valid"
+
 
 @app.route('/reload', methods=['GET'])
 def relaod():

@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
-import json, yaml
+import json
+import yaml
 from termcolor import colored as c
 
 COLOR = 'blue'
+
+
 def prompt(text="", color=COLOR):
     '''
     Generate a prompt with the given color and return the output
     '''
     return input(c(text, color, attrs=('bold',)))
+
 
 def getTeamRange():
     '''
@@ -37,7 +41,7 @@ def addHost(network):
     Get the input information for a host on the network
     '''
     while True:
-        ip = input(c('IP: ',COLOR, attrs=('bold',))+network+".")
+        ip = input(c('IP: ', COLOR, attrs=('bold',))+network+".")
         hostname = prompt("Hostname: ")
         os = prompt("OS: ")
         isGood = prompt("Correct? [Y/n]", "green")
@@ -99,7 +103,7 @@ def main():
     # Get the networks
     config['networks'] = addNetworks()
     print(json.dumps(config, indent=4))
-    print(yaml.dump(config, default_flow_style = False))
+    print(yaml.dump(config, default_flow_style=False))
 
 
 if __name__ == '__main__':

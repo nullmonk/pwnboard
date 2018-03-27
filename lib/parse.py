@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-import redis
-from . import r, getConfig
+from . import r
 
 
 def processEvent(event):

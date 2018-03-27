@@ -7,4 +7,4 @@ if __name__ == '__main__':
     log = logging.getLogger("werkzeug")
     log.setLevel(logging.ERROR)
     app.config['DEBUG'] = True
-    app.run(host='0.0.0.0', port=getConfig('server/port',80))
+    app.run(host='0.0.0.0', port=getConfig('server/port', 80))
