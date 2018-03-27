@@ -22,8 +22,14 @@ def index():
     global BOARDCACHE
     global BOARDCACHE_TIME
     global BOARDCACHE_UPDATED
-    if ((getEpoch() - BOARDCACHE_TIME) < CONFIG.get('cache_time',10)
-        or not BOARDCACHE_UPDATED):
+    # Find the time since the last cache
+    # The server will return the cache in two situations
+    #  1. It has been less than 'cache_time' since the last cache
+    #  2. There has been no new data since the last cache AND the cache is
+    #     younger than 30 seconds
+    ctime = getEpoch() - BOARDCACHE_TIME
+    if (ctime < CONFIG.get('cache_time',10)
+        or (not BOARDCACHE_UPDATED and ctime < 30)):
         log.info("Pulling board html from cache")
         # return the cached dictionary
         return make_response(BOARDCACHE)
