@@ -4,7 +4,7 @@ from .data import getBoardDict, getEpoch, getAlert
 from . import getConfig, app, logger, r, loadConfig
 from .parse import processEvent, parseData
 from flask import (request, render_template, make_response, Response, url_for,
-                   redirect)
+                   redirect, abort)
 from .tools import sendSlackMsg
 
 # The cache of the main board page
@@ -20,6 +20,7 @@ def index():
     '''
     html = ""
     log = logging.getLogger('werkzeug')
+
     # Find the time since the last cache
     # The server will return the cache in two situations
     #  1. It has been less than 'cache_time' since the last cache
@@ -107,21 +108,17 @@ def installTools(tool):
     '''
     server = getConfig('server/host', 'localhost')
     port = getConfig('server/port', 80)
-    if tool in ('empire', ):
-        # Render the empire script with the needed variables
-        logger.info("{} requested empire install script".format(
-                                                request.remote_addr))
-        return Response(render_template('clients/empire.j2',
+    # Try to render a template for the tool
+    try:
+        text = Response(render_template('clients/{}.j2'.format(tool),
                                         server=server, port=port),
-                        mimetype='text/plain')
-    if tool in ('cobaltstrike', "cs"):
-        # Render the cobaltstrike script with the needed variables
-        logger.info("{} requested cobaltstrike install script".format(
-                                                request.remote_addr))
-        return Response(render_template('clients/cobaltstrike.j2',
-                                        server=server, port=port),
-                        mimetype='text/plain')
-    return ""
+                                        mimetype='text/plain')
+        logger.info("{} requested {} install script".format(
+                                                request.remote_addr, tool))
+        return text
+    except Exception as E:
+        print(E)
+        abort(404)
 
 
 @app.route('/setmessage', methods=['GET', 'POST'])
