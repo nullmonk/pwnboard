@@ -6,8 +6,8 @@ import time
 import sys
 
 hosts = ["10.2.x.1",  "10.2.x.2", "10.2.x.3", "10.2.x.4", "10.2.x.5",
-         "10.2.x.1", "10.3.x.2", "10.3.x.3"]
-server = "http://192.168.3.36/generic"
+         "10.3.x.1", "10.3.x.2", "10.3.x.3"]
+server = "http://localhost/generic"
 
 try:
     loop = int(sys.argv[1])

@@ -115,7 +115,7 @@ def installTools(tool):
                                         mimetype='text/plain')
         logger.info("{} requested {} install script".format(
                                                 request.remote_addr, tool))
-        return text
+        return text + "\n"
     except Exception as E:
         print(E)
         abort(404)
