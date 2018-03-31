@@ -18,10 +18,22 @@ hand modifying the sample config `toplogy.json`.
 ### Settings
 All non-topology settings can be updated in `config.yml`.
 
+You may configure how long (in minutes) a host has before it times out
+```yaml
+host_timeout: 5
+```
+
 **Slack**
 
 Setup slack information in the `config.yml` file and modify the database settings
-if you are running the Redis DB somewhere else.
+if you are running the Redis DB somewhere else. Pwnboard can push slack updates everytime a host times out.
+Enable the settings in the configuration file to allow this functionality.
+```yaml
+slack:
+  token: "xoxb-123456789123-xxXXxXXXxXXXXxxxxXxXXXXxxXX"
+  channel: "#pwnboard"
+  send_updates: true
+```
 
 **Alternate Theme**
 
@@ -41,9 +53,15 @@ run the install scripts for each framework and client.
 The install scripts will be rendered based off of the current configuration file.
 
 ### Currently supported frameworks:
-**CobaltStrike** `http://localhost/install/cobaltstrike/` or `/install/cs`
+**CobaltStrike** `http://localhost/install/cobaltstrike`
 
-**Empire** `https://localhost/install/empire`
+**Metasploit** `http://localhost/install/metaspoit`
+
+**Empire** `http://localhost/install/empire`
+
+**Python** `http://localhost/install/python`
+
+**Bash** `http://localhost/install/bash`
 
 > Make sure `server` and `port` are updated in the configuration so the install
 scripts render correctly
@@ -67,7 +85,7 @@ alerttime: 2
 # Future Features
 * Init script to help configure and use the program
 * Reset the db before starting an engagement
-* Click on a host to track the beacons REQUIRE DB UPDATE
+* Click on a host to track the beacons
 
 
 ![pwnboard](https://raw.githubusercontent.com/micahjmartin/pwnboard/master/img/PWNboard.png)
