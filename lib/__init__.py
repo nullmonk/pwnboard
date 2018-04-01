@@ -7,6 +7,7 @@ import redis
 import json
 import yaml
 import logging
+from os.path import isfile
 
 # Create the topology dict
 CONFIG = {}
@@ -32,6 +33,10 @@ def loadConfig():
     global CONFIG
     TOPO_FILE = 'topology.json'
     CONFIG_FILE = 'config.yml'
+    if not isfile(TOPO_FILE):
+        TOPO_FILE = "/etc/pwnboard/" + TOPO_FILE
+    if not isfile(CONFIG_FILE):
+        CONFIG_FILE = "/etc/pwnboard/" + CONFIG_FILE
     # Load a configuration file for the topology
     with open(TOPO_FILE) as of:
         CONFIG.update(json.load(of))

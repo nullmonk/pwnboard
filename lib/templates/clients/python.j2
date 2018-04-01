@@ -8,7 +8,7 @@ import sys
 
 
 def sendUpdate(ip, name="python"):
-    host = "http://{{ server }}:{{ port }}/generic"
+    host = "http://{{ server }}/generic"
     headers = {'Content-Type': 'application/json',
                'Connection': 'Close'}
     data = json.dumps({'ip': ip, 'type': name})

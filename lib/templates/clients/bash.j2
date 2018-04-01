@@ -1,5 +1,5 @@
 #!/bin/bash
-host="http://{{ server }}:{{ port }}/generic"
+host="http://{{ server }}/generic"
 [ "$1" = "" ] && exit
 [ "$2" != "" ] && name="$2" || name="bash"
 data="{\"ip\":\"$1\",\"type\":\"$name\"}"

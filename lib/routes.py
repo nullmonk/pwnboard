@@ -106,12 +106,11 @@ def installTools(tool):
     E.g. If you request '/install/empire' you will get a script to run that
     will update your empire with the needed functions
     '''
-    server = getConfig('server/host', 'localhost')
-    port = getConfig('server/port', 80)
+    host = getConfig('server/host', 'localhost:80')
     # Try to render a template for the tool
     try:
         text = Response(render_template('clients/{}.j2'.format(tool),
-                                        server=server, port=port),
+                                        server=host),
                                         mimetype='text/plain')
         logger.info("{} requested {} install script".format(
                                                 request.remote_addr, tool))
