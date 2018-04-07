@@ -14,3 +14,7 @@ uwsgi:
   chmod-socket: 660
   vacuum: true
   die-on-term: true
+
+  # Logging configurations
+  log-5xx: true
+  disable-logging: true
