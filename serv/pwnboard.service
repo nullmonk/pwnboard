@@ -1,0 +1,12 @@
+[Unit]
+Description=pwnboard uwsgi service
+After=network.target nginx.service
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/pwnboard
+ExecStart=/usr/bin/uwsgi --yaml serv/wsgi.yml
+
+[Install]
+WantedBy=multi-user.target
