@@ -129,12 +129,10 @@ def installTools(tool):
     host = getConfig('server/host', 'localhost:80')
     # Try to render a template for the tool
     try:
-        text = Response(render_template('clients/{}.j2'.format(tool),
-                                        server=host),
-                                        mimetype='text/plain')
+        text = render_template('clients/{}.j2'.format(tool))
         logger.info("{} requested {} install script".format(
                                                 request.remote_addr, tool))
-        return text + "\n"
+        return Response(text+"\n", mimetype='text/plain')
     except Exception as E:
         print(E)
         abort(404)
