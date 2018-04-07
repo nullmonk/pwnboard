@@ -1,0 +1,16 @@
+uwsgi:
+  # Setup the server for python3
+  plugin: python3
+  # Let the protocol default to wsgi unless testing
+  # protocol: http
+  # The filename containing the flask app
+  wsgi-file: /var/www/pwnboard/pwnboard.py
+  # The Name of the app object in the file listed above
+  callable: app
+  # master: true
+  # Socket Processes
+  socket: /var/www/pwnboard/serv/pwnboard.sock
+  #processes: 5
+  chmod-socket: 660
+  vacuum: true
+  die-on-term: true
