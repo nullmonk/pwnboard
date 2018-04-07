@@ -7,7 +7,8 @@ database:
   server: localhost
   port: 6379
 server:
-    host: https://pwnboard.win
+    host: http://pwnboard.win
+    port: 80
     cache: true
     cache_time: 10
     logfile: pwnboard.log

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import json
 import logging
 from .data import getBoardDict, getEpoch, getAlert
 from . import getConfig, app, logger, r, loadConfig
@@ -101,11 +102,10 @@ def genericEvent():
 @app.route('/arsenal', methods=['POST'])
 def arsenalIntegration():
     '''
-    Receive and parse data for arsenal webhooks... This isnt the APIs job kyle...
+    Receive and parse data for arsenal webhooks. This isnt the APIs job kyle..
     '''
     req = request.get_json(force=True)
-    ip_addrs = []
-    return req
+    return json.dumps(req, indent=2)
     try:
         for iface in target.facts.get('interfaces', []):
             addrs = iface.get('ip_addrs')
