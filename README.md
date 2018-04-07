@@ -27,7 +27,17 @@ Set up the systemd service file and the nginx config
 ln -s /var/www/pwnboard/serv/pwnboard.service /lib/systemd/system/
 systemctl daemon-reload
 ln -s /var/www/pwnboard/serv/nginx.conf /etc/nginx/conf.d/pwnboard.conf
+# Delete the default nginx page
+rm /etc/nginx/sites-enabled/default
 ```
+
+Generate Self-Signed SSL certificates
+```
+openssl req -x509 -nodes -new -batch -keyout /server.pem -out /cert.pem
+```
+
+> If you would like to use LetsEncrypt's Certbot, follow
+[this guide](CERTBOT.md).
 
 ## Configure
 
