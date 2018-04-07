@@ -105,6 +105,7 @@ def arsenalIntegration():
     '''
     req = request.get_json(force=True)
     ip_addrs = []
+    return req
     try:
         for iface in target.facts.get('interfaces', []):
             addrs = iface.get('ip_addrs')
@@ -172,6 +173,6 @@ def setmessage():
 
 
 @app.route('/reload', methods=['GET'])
-def relaod():
+def reload():
     loadConfig()
     return redirect(url_for('index'))
