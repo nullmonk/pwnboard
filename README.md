@@ -5,7 +5,7 @@ Modified version of ztgrace/pwnboard
 
 # Running the PWNboard
 ## Install
-__Flask__
+#### Flask
 Install all the needed packages and the pwnboard code
 ```
 apt-get install -y redis-server python3-redis python3-flask python3-yaml
@@ -13,7 +13,7 @@ git clone https://github.com/micahjmartin/pwnboard /var/www/pwnboard
 chown -R www-data:www-data /var/www/pwnboard
 ```
 
-__nginx and uwsgi__
+#### nginx and uwsgi
 If you plan on running pwnboard behind nginx, run the following commands in
 addition to the previous.
 
@@ -33,7 +33,8 @@ rm /etc/nginx/sites-enabled/default
 
 Generate Self-Signed SSL certificates
 ```
-openssl req -x509 -nodes -new -batch -keyout /server.pem -out /cert.pem
+mkdir /etc/nginx/ssl
+openssl req -x509 -nodes -new -batch -keyout /etc/nginx/ssl/server.key -out /etc/nginx/ssl/server.crt
 ```
 
 > If you would like to use LetsEncrypt's Certbot, follow
@@ -48,15 +49,6 @@ server:
   host: https://pwnboard.local
 ```
 
-If using NGINX and uWSGI, update the NGINX conf file to include the correct
-domain name in `/var/www/pwnboard/serv/nginx.conf`
-```
-server {
-    ...
-    server_name pwnboard.local
-    ...
-}
-```
 ### Topology
 Configure the topology json file by running `./scripts/generate_topo.py` or by
 hand modifying the sample config `topology.json`.
