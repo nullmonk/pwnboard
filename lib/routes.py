@@ -99,25 +99,6 @@ def genericEvent():
     return "Valid"
 
 
-@app.route('/arsenal', methods=['POST'])
-def arsenalIntegration():
-    '''
-    Receive and parse data for arsenal webhooks. This isnt the APIs job kyle..
-    '''
-    req = request.get_json(force=True)
-    return json.dumps(req, indent=2)
-    try:
-        for iface in target.facts.get('interfaces', []):
-            addrs = iface.get('ip_addrs')
-            if addrs:
-                for addr in addrs:
-                    if addr != '127.0.0.1' and not addr.startswith('169.254'):
-                        ip_addrs.append(addr)
-    except:
-        return "Invalid"
-    return "Ok"
-
-
 @app.route('/install/<tool>/', methods=['GET'])
 @app.route('/install/<tool>', methods=['GET'])
 def installTools(tool):
