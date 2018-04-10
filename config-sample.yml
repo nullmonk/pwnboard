@@ -1,0 +1,16 @@
+---
+slack:
+    token: ""
+    channel: "#pwnboard"
+    send_updates: false
+database:
+  server: localhost
+  port: 6379
+server:
+    host: http://pwnboard.local
+    cache: true
+    cache_time: 10
+    logfile: pwnboard.log
+alternate_theme: true
+alert_timeout: 1
+host_timeout: 1
