@@ -8,9 +8,9 @@ database:
   port: 6379
 server:
     host: http://pwnboard.local
-    cache: true
+    cache: false
     cache_time: 10
     logfile: pwnboard.log
-alternate_theme: true
-alert_timeout: 1
-host_timeout: 1
+alternate_theme: false
+alert_timeout: 2
+host_timeout: 5
