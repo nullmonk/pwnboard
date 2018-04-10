@@ -26,7 +26,7 @@ Set up the systemd service file and the nginx config
 ```
 ln -s /var/www/pwnboard/serv/pwnboard.service /lib/systemd/system/
 systemctl daemon-reload
-ln -s /var/www/pwnboard/serv/nginx.conf /etc/nginx/conf.d/pwnboard.conf
+ln -s /var/www/pwnboard/serv/nginx.conf /etc/nginx/sites-enabled/pwnboard.conf
 # Delete the default nginx page
 rm /etc/nginx/sites-enabled/default
 ```
