@@ -53,7 +53,11 @@ module Msf
                                       'Content-Type' => 'application/json')
             req.body = data.to_json
             res = http.request(req)
-            print_good("pwnboard updated")
+            if res.body == "Valid"
+                print_good("pwnboard updated")
+            else
+                print_bad("Error updated pwnboard")
+            end
         end
     end
 end
