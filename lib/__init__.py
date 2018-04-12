@@ -63,7 +63,7 @@ logfil = getConfig("server/logfile", "")
 # Get the pwnboard logger
 # Create a log formatter
 FMT = logging.Formatter(fmt="[%(asctime)s] %(levelname)s: %(message)s",
-                        datefmt="%I:%M:%S")
+                        datefmt="%x %I:%M:%S")
 # Create a file handler
 if logfil != "":
     FH = logging.FileHandler(logfil)
