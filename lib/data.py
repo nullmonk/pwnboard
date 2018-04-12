@@ -54,7 +54,7 @@ def getHostData(host):
     if last is None or last > getConfig('host_timeout', 2):
         if o == "True":
             logger.warn("{} offline".format(host))
-            sendSlackMsg("{} went offline".format(host))
+            sendSlackMsg("@channel {} went offline :eyes:".format(host))
         status['online'] = False
     else:
         status['online'] = True
