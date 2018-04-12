@@ -5,7 +5,7 @@
 
 sub updatePwnBoard {
     local('$pwnboard_url')
-    $pwnboard_url = 'http://{{ server }}/generic';
+    $pwnboard_url = '{{ server }}/generic';
     @curl_command = @('curl','-X','POST',
 	'-H', 'Content-Type: application/json',
 	'-d', '{"ip":"$1","type":"cobaltstrike"}', $pwnboard_url);

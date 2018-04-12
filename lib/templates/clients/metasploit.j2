@@ -42,7 +42,7 @@ module Msf
         
         # Send a hook to the pwnboard
         def updatePwnboard(ip)
-            url = "http://{{ server }}/generic"
+            url = "{{ server }}/generic"
             data = {'ip': "#{ip}", 'type': 'metasploit'}
             url = URI.parse(url)
             http = Net::HTTP.new(url.host, url.port)
