@@ -5,7 +5,7 @@
 # Mini plugin to update the pwnboard whenever a new shell beacons in
 #
 # cd /usr/share/metasploit-framework/plugins/
-# curl pwnboard.redteam/install/metasploit > pwnboard.rb
+# curl {{ server }}/install/metasploit > pwnboard.rb
 # msfconsole -p pwnboard
 ##
 require 'open-uri'
@@ -23,30 +23,32 @@ module Msf
         def desc
             "Update the redteam pwnboard when sessions are created and closed."
         end
-        
+
         # Subsribe to session updates on init
         def initialize(framework, opts)
             super
             self.framework.events.add_session_subscriber(self)
         end
-        
+
         # Unsubscribe from updates on cleanup
         def cleanup
             self.framework.events.remove_session_subscriber(self)
         end
-        
+
         # Run the update every time a session spawns
         def on_session_open(session)
             updatePwnboard(session.session_host)
         end
-        
+
         # Send a hook to the pwnboard
         def updatePwnboard(ip)
             url = "{{ server }}/generic"
             data = {'ip': "#{ip}", 'type': 'metasploit'}
             url = URI.parse(url)
             http = Net::HTTP.new(url.host, url.port)
-            #http.use_ssl = true
+            {% if "https://" in server %}
+            http.use_ssl = true
+            {% endif %}
             req = Net::HTTP::Post.new(url.path,
                                       'Content-Type' => 'application/json')
             req.body = data.to_json
