@@ -75,21 +75,29 @@ def genericEvent():
     if req.get('challenge', None):
         return req.json['challenge']
     data = {}
+
     # Type and IP are required
     if 'type' in req:
         data['type'] = req.get('type')
     else:
         return "Invalid data"
-    if 'ip' in req:
-        data['ip'] = req.get('ip')
-    else:
-        return "Invalid data"
+
     # Host and Session are not required
     data['host'] = None
     data['session'] = None
     # Time is calculated
     data['last_seen'] = getEpoch()
-    parseData(data)
+    # If its one IP, update that, if its more than one, add them all
+    if 'ip' in req:
+        data['ip'] = req.get('ip')
+        parseData(data)
+    elif 'ips' in req and isinstance(req.get('ips'), list):
+        print("Got several IP addresses", req.get('ips'))
+        for addr in req.get('ips'):
+            data['ip'] = addr
+            parseData(data)
+    else:
+        return "Invalid data"
     logger.info(
         "{} updated beacon for {} from {}".format(request.remote_addr,
                                                   data['ip'], data['type']))
