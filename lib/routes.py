@@ -118,7 +118,7 @@ def installTools(tool):
     host = getConfig('server/host', 'localhost:80')
     # Try to render a template for the tool
     try:
-        text = render_template('clients/{}.j2'.format(tool))
+        text = render_template('clients/{}.j2'.format(tool), server=host)
         logger.info("{} requested {} install script".format(
                                                 request.remote_addr, tool))
         return Response(text+"\n", mimetype='text/plain')
