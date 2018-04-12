@@ -89,13 +89,19 @@ def genericEvent():
     data['last_seen'] = getEpoch()
     # If its one IP, update that, if its more than one, add them all
     if 'ip' in req:
-        data['ip'] = req.get('ip')
-        parseData(data)
+        try:
+            data['ip'] = req.get('ip').split('/')[0]
+            parseData(data)
+        except Exception as Exp:
+            pass
     elif 'ips' in req and isinstance(req.get('ips'), list):
         print("Got several IP addresses", req.get('ips'))
         for addr in req.get('ips'):
-            data['ip'] = addr
-            parseData(data)
+            try:
+                data['ip'] = addr.split('/')[0]
+                parseData(data)
+            except Exception as Exp:
+                pass
     else:
         return "Invalid data"
     logger.info(
