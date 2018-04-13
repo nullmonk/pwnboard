@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from . import r
+from . import logger
 
 
 def processEvent(event):
@@ -20,8 +21,7 @@ def parseData(data):
     '''
     if data['ip'] == "127.0.0.1":
         return
-    logger.debug("{} updated beacon for {} from {}".format(request.remote_addr,
-                                                          data['ip'], data['type']))
+    logger.debug("updated beacon for {} from {}".format(data['ip'], data['type']))
     status = Status(**data)
     status.save()
 
