@@ -18,6 +18,10 @@ def parseData(data):
     '''
     Parse updates that come in via POST to the server
     '''
+    if data['ip'] == "127.0.0.1":
+        return
+    logger.debug("{} updated beacon for {} from {}".format(request.remote_addr,
+                                                          data['ip'], data['type']))
     status = Status(**data)
     status.save()
 

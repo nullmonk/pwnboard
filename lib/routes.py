@@ -104,9 +104,6 @@ def genericEvent():
                 pass
     else:
         return "Invalid data"
-    logger.info(
-        "{} updated beacon for {} from {}".format(request.remote_addr,
-                                                  data['ip'], data['type']))
     # Tell us that new data has come
     global BOARDCACHE_UPDATED
     BOARDCACHE_UPDATED = True
