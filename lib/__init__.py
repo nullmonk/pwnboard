@@ -49,7 +49,7 @@ def writeConfig(config = None):
     if config:
         CONFIG = config
     # Write the config file
-    with open(CONFIG.get('MAIN_CONF', '/etc/pwnboard/tmp.json'), 'w') as conf:
+    with open(CONFIG.get('MAIN_CONF', 'tmp.json'), 'w') as conf:
         conf.write(json.dumps(CONFIG, indent=2))
     genBaseHosts()
 
@@ -67,7 +67,7 @@ def loadConfig():
         CONFIG.update(json.load(of))
     with open(CONFIG_FILE) as of:
         CONFIG.update(yaml.load(of))
-    CONFIG['MAIN_CONF'] = "/etc/pwnboard/tmp.json"
+    CONFIG['MAIN_CONF'] = "tmp.json"
     writeConfig()
 
 
