@@ -49,18 +49,23 @@ def getHostData(host):
     # Add the data to a dictionary
     status = {}
     status['ip'] = host
+    # If all the data is None from the DB, just return the blank status
+    # stop unneeded calcs. and prevent data from being written to db
+    if (t is None and last is None and o is None
+        and h is None and s is None):
+        return status
     # Set the last seen time based on time calculations
     last = getTimeDelta(last)
     if last is None or last > getConfig('host_timeout', 2):
         if o == "True":
             logger.warn("{} offline".format(host))
+            # Try to send a slack message
             sendSlackMsg("<!channel> {} went offline :eyes:".format(host))
         status['online'] = False
     else:
         status['online'] = True
     # Write the status to the database
     r.hmset(host, {'online': status['online']})
-
     # Add only the values that are not None
     # redisdata=[('Host', h), ('Session', s), ('Type', t), ('Last seen', last)]
     # We dont actually need session and host
