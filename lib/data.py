@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import datetime
 import time
-from . import getConfig, r, logger
+from . import getConfig, r, logger, genBaseHosts
 from .tools import sendSlackMsg
 
 
@@ -20,6 +20,10 @@ def getBoardDict():
     # Get the teams and the basehost list from the config
     teams = getConfig("teams", ())
     baseHosts = getConfig("base_hosts", ())
+    # If there is no base hosts, regen
+    if not baseHosts:
+        genBaseHosts()
+        baseHosts = getConfig("base_hosts", ())
     # Loop through each host for each team and get the data
     # Turn this data into JSON for the Jinja template
     board = []

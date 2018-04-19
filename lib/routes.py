@@ -2,7 +2,7 @@
 import json
 import logging
 from .data import getBoardDict, getEpoch, getAlert
-from . import getConfig, app, logger, r, loadConfig
+from . import getConfig, app, logger, r, loadConfig, writeConfig, dumpConfig
 from .parse import processEvent, parseData
 from flask import (request, render_template, make_response, Response, url_for,
                    redirect, abort)
@@ -166,3 +166,15 @@ def setmessage():
 def reload():
     loadConfig()
     return redirect(url_for('index'))
+
+
+@app.route('/dumpconfig', methods=['GET'])
+def dumpRoute():
+    return Response(dumpConfig(), mimetype='application/json')
+
+
+@app.route('/uploadconfig', methods=['POST'])
+def uploadRoute():
+    req = request.get_json(force=True)
+    writeConfig(req)
+    return "Valid"

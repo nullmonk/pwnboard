@@ -29,6 +29,31 @@ def getConfig(key, default=None):
     return retval
 
 
+def dumpConfig():
+    '''
+    Dump the config file
+    '''
+    global CONFIG
+    # Remove all the base hosts information from the config
+    basehosts = CONFIG.pop("base_hosts",None)
+    data = json.dumps(CONFIG, indent=2) + "\n"
+    genBaseHosts()
+    return data
+
+def writeConfig(config = None):
+    '''
+    overwrite the in-memory config file
+    '''
+    global CONFIG
+    # If we are given a new config, update the global to that
+    if config:
+        CONFIG = config
+    # Write the config file
+    with open(CONFIG.get('MAIN_CONF', '/etc/pwnboard/tmp.json'), 'w') as conf:
+        conf.write(json.dumps(CONFIG, indent=2))
+    genBaseHosts()
+
+
 def loadConfig():
     global CONFIG
     TOPO_FILE = 'topology.json'
@@ -42,8 +67,13 @@ def loadConfig():
         CONFIG.update(json.load(of))
     with open(CONFIG_FILE) as of:
         CONFIG.update(yaml.load(of))
+    CONFIG['MAIN_CONF'] = "/etc/pwnboard/tmp.json"
+    writeConfig()
 
+
+def genBaseHosts():
     # Generate a base host list based on the infrustructure configuration
+    global CONFIG
     hostsBase = []
     for network in CONFIG['networks']:
         netip = network.get("ip", "")
