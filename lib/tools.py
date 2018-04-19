@@ -2,6 +2,24 @@ from . import getConfig, logger
 import requests
 import json
 
+SLACK_TOKEN = None
+
+def getSlackKey():
+    '''
+    Read the slack API token from the config
+    '''
+    global SLACK_TOKEN
+    token_file = getConfig("slack/token_file")
+    try:
+        with open(token_file, 'r') as slkfil:
+            SLACK_TOKEN = slkfil.read().strip()
+        if SLACK_TOKEN is None or SLACK_TOKEN == "":
+            raise Exception("Bad slack token")
+        return True
+    except Exception as E:
+        logger.warn("No slack token file")
+        return False
+
 
 def sendSlackMsg(msg, force=False):
     '''
@@ -9,22 +27,21 @@ def sendSlackMsg(msg, force=False):
     '''
     if not getConfig('slack/send_updates', False) and not force:
         return True
+
+    # Get the slack token
+    if SLACK_TOKEN is None:
+        if not getSlackKey():
+            logger.warn("configuration missing slack token")
+            return False
     # Get the token and channel from the config file
-    token = getConfig("slack/token")
     channel = getConfig("slack/channel", "#pwnboard")
-    if not token:
-        logger.warn("configuration missing slack token")
-        return False
-    if not channel:
-        logger.warn("configuration missing slack channel")
-        return False
     if msg == "":
         logger.warn("Slack message should not be blank")
         return False
 
     # Prepare the request data
     headers = {'Content-Type': 'application/json',
-               'Authorization': 'Bearer '+token}
+               'Authorization': 'Bearer '+SLACK_TOKEN}
     data = {'channel': channel, 'text': msg, 'as_user': 'true'}
     host = "https://slack.com/api/chat.postMessage"
     try:

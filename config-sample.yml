@@ -1,6 +1,6 @@
 ---
 slack:
-    token: ""
+    token_file: "/etc/pwnboard/slack_token"
     channel: "#pwnboard"
     send_updates: false
 database:
