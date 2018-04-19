@@ -8,7 +8,7 @@ import sys
 
 
 def sendUpdate(ips, name="python"):
-    host = "https://{{ server }}/generic"
+    host = "{{ server }}/generic"
     data = {'ips': ips, 'type': name}
     try:
         req = requests.post(host, json=data, timeout=3)
