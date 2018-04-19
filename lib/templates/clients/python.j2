@@ -7,24 +7,22 @@ import json
 import sys
 
 
-def sendUpdate(ip, name="python"):
-    host = "{{ server }}/generic"
-    headers = {'Content-Type': 'application/json',
-               'Connection': 'Close'}
-    data = json.dumps({'ip': ip, 'type': name})
+def sendUpdate(ips, name="python"):
+    host = "https://{{ server }}/generic"
+    data = {'ips': ips, 'type': name}
     try:
-        req = requests.post(host, data=data, headers=headers)
+        req = requests.post(host, json=data, timeout=3)
+        print(req.text)
         return True
     except Exception as E:
+        print(E)
         return False
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
-        ip = sys.argv[1]
+        ips = sys.argv[1:]
     else:
-        print("USAGE: {} <ip> [name]".format(sys.argv[0]))
-    if len(sys.argv) > 2:
-        name = sys.argv[2]
-    else:
-        name = "python"
-    sendUpdate(ip, name)
+        print("USAGE: {} [ips...]".format(sys.argv[0]))
+
+    name = "python"
+    sendUpdate(ips, name)
