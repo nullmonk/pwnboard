@@ -1,0 +1,13 @@
+version: '3'
+services:
+  pwnboard:
+    build: .
+    ports:
+      - "443:443"
+      - "80:80"
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    restart: always
