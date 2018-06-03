@@ -138,9 +138,4 @@ run `systemctl start pwnboard`
 * Click on a host to track the beacons
 
 
-![pwnboard](https://raw.githubusercontent.com/micahjmartin/pwnboard/master/img/PWNboard.png)
-
-To install the pwnboard as a service proxied behind nginx, Follow these steps
-
-Clone the repository
-
+![pwnboard](https://raw.githubusercontent.com/micahjmartin/pwnboard/master/doc/img/PWNboard.png)
