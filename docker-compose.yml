@@ -10,3 +10,9 @@ services:
     ports:
       - "6379:6379"
     restart: always
+
+  nginx:
+    image: "nginx:latest"
+    container_name: nginx
+    volumes:
+      - ${PWD}/config/nginx.conf:/etc/nginx/nginx.conf:ro
