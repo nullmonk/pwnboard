@@ -3,8 +3,7 @@ services:
   pwnboard:
     build: .
     ports:
-      - "443:443"
-      - "80:80"
+      - "5000:5000"
 
   redis:
     image: redis:alpine
