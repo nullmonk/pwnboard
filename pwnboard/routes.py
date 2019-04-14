@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
-import json
+import os
 import logging
 from flask import (request, render_template, make_response, Response, url_for,
                    redirect, abort, jsonify)
 
+from .functions import saveData
+
 
 from .data import getBoardDict, getEpoch, getAlert
 from . import getConfig, app, logger, r, loadConfig, writeConfig, dumpConfig
-from .parse import saveData
 
 from .tools import sendSlackMsg
 
 # The cache of the main board page
+BOARDCACHE_TIMEOUT = os.environ.get('CACHE_TIME', -1)  # -1 means disabled
 BOARDCACHE = ""
 BOARDCACHE_TIME = 0
 BOARDCACHE_UPDATED = True
@@ -30,13 +32,12 @@ def index():
     #  1. It has been less than 'cache_time' since the last cache
     #  2. There has been no new data since the last cache AND the cache is
     #     younger than 30 seconds
-    cache = getConfig('server/cache', True)
-    if cache:
+    if BOARDCACHE_TIMEOUT == -1:
         global BOARDCACHE
         global BOARDCACHE_TIME
         global BOARDCACHE_UPDATED
         ctime = getEpoch() - BOARDCACHE_TIME
-        if (ctime < getConfig('server/cache_time', 10) or
+        if (ctime < BOARDCACHE_TIMEOUT or
                 (not BOARDCACHE_UPDATED and ctime < 30)):
             log.info("Pulling board html from cache")
             # return the cached dictionary
@@ -48,7 +49,7 @@ def index():
     html = render_template('index.html', error=error, alttheme=alttheme,
                            board=board, teams=getConfig('teams', ()))
     # Update the cache and the cache time
-    if cache:
+    if BOARDCACHE_TIMEOUT == -1:
         BOARDCACHE_TIME = getEpoch()
         BOARDCACHE = html
         BOARDCACHE_UPDATED = False

@@ -11,7 +11,7 @@ services:
       #- PWNTHEME="green"
       - ALERT_TIMEOUT=2  # Minutes to show an alert for
       - HOST_TIMEOUT=5   # Minutes before a host has 'expired'
-      - CACHE_TIME=10    # Seconds to cache for
+      - CACHE_TIME=10    # Seconds to cache for. set to -1 to disable
 
   redis:
     image: redis:alpine

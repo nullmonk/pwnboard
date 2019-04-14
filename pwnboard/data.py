@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import datetime
 import time
+import os
 from . import getConfig, r, logger, genBaseHosts
 from .tools import sendSlackMsg
 
@@ -40,7 +41,7 @@ def getBoardDict():
     return board
 
 
-def getHostData(host):
+def getHostData(victim):
     '''
     Get the host data for a single host.
     Returns and array with the following information:
@@ -48,11 +49,11 @@ def getHostData(host):
     type - The last service the host called back through
     '''
     # Request the data from the database
-    h, s, t, last, o = r.hmget(host, ('host', 'session',
-                                      'type', 'last_seen', 'online'))
+    server, app, last, message, online = r.hmget(victim, ('server', 'application',
+                                      'last_seen', 'message', 'online'))
     # Add the data to a dictionary
     status = {}
-    status['ip'] = host
+    status['victim'] = victim
     # If all the data is None from the DB, just return the blank status
     # stop unneeded calcs. and prevent data from being written to db
     if (t is None and last is None and o is None
@@ -90,7 +91,7 @@ def getAlert():
     if time is None or msg is None:
         return ""
     # If the time is within X minutes, display the message
-    if time < getConfig('alert_timeout', 1):
+    if time < int(os.environ('ALERT_TIMEOUT', 2)):
         return msg
     return ""
 
