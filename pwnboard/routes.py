@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 import json
 import logging
+from flask import (request, render_template, make_response, Response, url_for,
+                   redirect, abort, jsonify)
+
+
 from .data import getBoardDict, getEpoch, getAlert
 from . import getConfig, app, logger, r, loadConfig, writeConfig, dumpConfig
-from .parse import processEvent, parseData
-from flask import (request, render_template, make_response, Response, url_for,
-                   redirect, abort)
+from .parse import saveData
+
 from .tools import sendSlackMsg
 
 # The cache of the main board page
@@ -52,62 +55,30 @@ def index():
     return make_response(html)
 
 
-@app.route('/slack-events', methods=['POST'])
-def slack_events():
-    res = request.json
-    if res.get('challenge', None):
-        return request.json['challenge']
-
-    # to get the 'channel' value right click on the channel and copy link
-    # I.E C9PGYTYH5
-    if res.get('event', None) and res.get('event')['channel'] == '':
-        processEvent(res['event'])
-
-    # Tell us that new data has come
-    global BOARDCACHE_UPDATED
-    BOARDCACHE_UPDATED = True
-    return ""
-
-
-@app.route('/generic', methods=['POST'])
-def genericEvent():
-    req = request.get_json(force=True)
-    if req.get('challenge', None):
-        return req.json['challenge']
-    data = {}
-
-    # Type and IP are required
-    if 'type' in req:
-        data['type'] = req.get('type')
-    else:
-        return "Invalid data"
-
-    # Host and Session are not required
-    data['host'] = None
-    data['session'] = None
-    # Time is calculated
+@app.route('/callback', methods=['POST'])
+def callback():
+    """Handle when a server registers an callback"""
+    data = request.get_json(force=True)
+    if 'challenge' in data:
+        return data['challenge']
     data['last_seen'] = getEpoch()
-    # If its one IP, update that, if its more than one, add them all
-    if 'ip' in req:
-        try:
-            data['ip'] = req.get('ip').split('/')[0]
-            parseData(data)
-        except Exception as Exp:
-            pass
-    elif 'ips' in req and isinstance(req.get('ips'), list):
-        print("Got several IP addresses", req.get('ips'))
-        for addr in req.get('ips'):
-            try:
-                data['ip'] = addr.split('/')[0]
-                parseData(data)
-            except Exception as Exp:
-                pass
+    # Make sure 'application' is in the data
+    if 'application' not in data: return "invalid POST"
+
+    if 'victims' in data and isinstance(data['victims'], list):
+        for victim in data['victims']:
+            d = dict(data)
+            d['victim'] = victim
+            saveData(d)
+    elif 'victim' in data:
+        saveData(data)
     else:
-        return "Invalid data"
+        return 'invalid POST'
     # Tell us that new data has come
     global BOARDCACHE_UPDATED
     BOARDCACHE_UPDATED = True
-    return "Valid"
+    return "valid"
+    
 
 
 @app.route('/install/<tool>/', methods=['GET'])

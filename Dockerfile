@@ -10,7 +10,7 @@ RUN pip3 install -r /tmp/requirements.txt
 
 # Install requirements
 RUN mkdir -p /opt/pwnboard/
-COPY lib /opt/pwnboard/
+COPY pwnboard /opt/pwnboard/
 COPY pwnboard.py /opt/pwnboard/
 COPY config/config.yml /opt/pwnboard/
 COPY config/topology.json /opt/pwnboard/
