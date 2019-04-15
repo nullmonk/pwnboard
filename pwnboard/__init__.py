@@ -3,6 +3,7 @@
 Initialize all the data and the config info
 '''
 from flask import Flask
+import os
 import redis
 import json
 import yaml
@@ -57,18 +58,18 @@ def writeConfig(config = None):
 def loadConfig():
     global CONFIG
     TOPO_FILE = 'topology.json'
-    CONFIG_FILE = 'config.yml'
-    if not isfile(TOPO_FILE):
-        TOPO_FILE = "/etc/pwnboard/" + TOPO_FILE
-    if not isfile(CONFIG_FILE):
-        CONFIG_FILE = "/etc/pwnboard/" + CONFIG_FILE
+    #CONFIG_FILE = 'config.yml'
+    #if not isfile(TOPO_FILE):
+    #    TOPO_FILE = "/etc/pwnboard/" + TOPO_FILE
+    #if not isfile(CONFIG_FILE):
+    #    CONFIG_FILE = "/etc/pwnboard/" + CONFIG_FILE
     # Load a configuration file for the topology
     with open(TOPO_FILE) as of:
         CONFIG.update(json.load(of))
-    with open(CONFIG_FILE) as of:
-        CONFIG.update(yaml.load(of))
-    CONFIG['MAIN_CONF'] = "tmp.json"
-    writeConfig()
+    #with open(CONFIG_FILE) as of:
+    #   CONFIG.update(yaml.load(of))
+    #CONFIG['MAIN_CONF'] = "tmp.json"
+    #writeConfig()
 
 
 def genBaseHosts():
@@ -89,7 +90,8 @@ app = Flask(__name__)
 app.config['STATIC_FOLDER'] = "lib/static"
 logger = logging.getLogger('pwnboard')
 loadConfig()
-logfil = getConfig("server/logfile", "")
+#logfil = getConfig("server/logfile", "")
+logfil = ""
 # Get the pwnboard logger
 # Create a log formatter
 FMT = logging.Formatter(fmt="[%(asctime)s] %(levelname)s: %(message)s",
@@ -105,8 +107,8 @@ SH.setFormatter(FMT)
 logger.addHandler(SH)
 logger.setLevel(logging.DEBUG)
 # Create the redis object. Make sure that we decode our responses
-rserver = getConfig('database/server', 'localhost')
-rport = getConfig('database/port', 6379)
+rserver = os.environ.get('database/server', 'localhost')
+rport = os.environ.get('database/port', 6379)
 r = redis.StrictRedis(host=rserver, port=rport,
                       charset='utf-8', decode_responses=True)
 

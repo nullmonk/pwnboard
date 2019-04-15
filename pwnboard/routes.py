@@ -56,7 +56,8 @@ def index():
     return make_response(html)
 
 
-@app.route('/callback', methods=['POST'])
+@app.route('/checkin', methods=['POST'])
+@app.route('/generic', methods=['POST'])
 def callback():
     """Handle when a server registers an callback"""
     data = request.get_json(force=True)
