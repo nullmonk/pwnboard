@@ -1,3 +1,4 @@
 pwnboard.log
 *.pyc
 *.swp
+*.venv

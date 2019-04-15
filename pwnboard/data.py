@@ -3,7 +3,7 @@ import datetime
 import time
 import os
 from . import getConfig, r, logger, genBaseHosts
-from .tools import sendSlackMsg
+from functions import send_alert
 
 
 def getEpoch():
@@ -56,28 +56,26 @@ def getHostData(victim):
     status['victim'] = victim
     # If all the data is None from the DB, just return the blank status
     # stop unneeded calcs. and prevent data from being written to db
-    if (t is None and last is None and o is None
-        and h is None and s is None):
+    if all([x is None for x in (server, app, last, message, online)]):
         return status
+
     # Set the last seen time based on time calculations
     last = getTimeDelta(last)
-    if last is None or last > getConfig('host_timeout', 2):
-        if o == "True":
-            logger.warn("{} offline".format(host))
+    if last is None or last > os.environ.get("HOST_TIMEOUT", 2):
+        if online.lower().strip() == "true":
+            logger.warn("{} offline".format(victim))
             # Try to send a slack message
-            sendSlackMsg("<!channel> {} went offline :eyes:".format(host))
+            send_alert("{} went offline".format(victim))
         status['online'] = False
     else:
         status['online'] = True
     # Write the status to the database
-    r.hmset(host, {'online': status['online']})
-    # Add only the values that are not None
-    # redisdata=[('Host', h), ('Session', s), ('Type', t), ('Last seen', last)]
-    # We dont actually need session and host
-    redisdata = [('Type', t), ('Last seen', last)]
-    for item in redisdata:
-        if item[1] is not None:
-            status[item[0]] = item[1]
+    r.hmset(victim, {'online': status['online']})
+    
+    status['Last Seen'] = last
+    status['App'] = app
+    status['Message'] = message
+    status['Server'] = server
     return status
 
 

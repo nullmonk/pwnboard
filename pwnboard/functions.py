@@ -24,3 +24,7 @@ def saveData(data):
         'server': data['server'],
         'last_seen': data['last_seen']
     })
+
+
+def send_alert(message):
+    pass
