@@ -10,10 +10,9 @@ RUN pip3 install -r /tmp/requirements.txt
 
 # Install requirements
 RUN mkdir -p /opt/pwnboard/
-COPY pwnboard /opt/pwnboard/
-COPY pwnboard.py /opt/pwnboard/
-COPY config/config.yml /opt/pwnboard/
-COPY config/topology.json /opt/pwnboard/
-COPY config/wsgi.yml /opt/pwnboard/
+COPY . /opt/pwnboard/
 
-CMD ["uwsgi", "--yaml", "/opt/pwnboard/wsgi.yml"]
+# Build the board file if one isnt given
+RUN bash scripts/setup.sh
+
+CMD ["uwsgi", "--yaml", "/opt/pwnboard/config/wsgi.yml"]
