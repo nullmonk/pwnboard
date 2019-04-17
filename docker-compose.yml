@@ -3,14 +3,14 @@ services:
   pwnboard:
     build: .
     ports:
-      - 80:5000
+      - "${PWNBOARD_PORT}:5000"
     environment:
       - FLASK_DEBUG=false
       - FLASK_PORT=5000
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - SYSLOG_HOST=logs.pwnboard.win
-      - SYSLOG_PORT=5000
+      - "SYSLOG_HOST=${SAWMILL_HOST}"
+      - "SYSLOG_PORT=${SAWMILL_PORT}"
       - PWN_THEME=blue
       #- PWN_THEME="green"
       - ALERT_TIMEOUT=2  # Minutes to show an alert for
