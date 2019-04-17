@@ -69,7 +69,7 @@ def getHostData(ip):
         if online and online.lower().strip() == "true":
             logger.warn("{} offline".format(ip))
             # Try to send a slack message
-            send_alert("{} went offline".format(ip))
+            send_syslog("pwnboard GENERIC {} went offline".format(ip))
         status['online'] = ""
     else:
         status['online'] = "True"
