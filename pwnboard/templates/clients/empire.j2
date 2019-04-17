@@ -1,73 +1,79 @@
-#!/usr/bin/env python3
-'''
-This script sends callback information to pwnboard everytime an empire agent
-calls back. This is achieved by adding a small piece of code to the Agents.py
-file.
-{#
-This file is meant to be rendered as a Jinja2 template
-#}
-Author: Micah Martin (github.com/micahjmartin)
-'''
-import sys
-from os.path import join, isfile
-from shutil import copyfile
+"""
+lumberjack.py
+A plugin that will call a function whenever an agent checks in
 
+INSTALLATION:
+    cp lumberjack.py empire/plugins
 
-# The code to add to the empire file to allow it to call back
-payload = ""
-payload += "        # Update the PWNboard everytime the agent checks in\n"
-payload += "        import requests\n"
-payload += "        try:\n"
-payload += "            # The host to call back to\n"
-payload += "            host = '{{server}}/generic'\n"
-payload += "            sessdata = self.get_agent_db(sessionID)\n"
-payload += "            # the first internal IP\n"
-payload += "            ip = sessdata['internal_ip'].split()[0]\n"
-payload += "            headers = {'Content-Type': 'application/json',\n"
-payload += "                       'Connection': 'Close'}\n"
-payload += "            data = json.dumps({'ip': ip, 'type': 'empire'})\n"
-payload += "            # Make the request\n"
-payload += "            requests.post(host,data=data, headers=headers)\n"
-payload += "        except:\n"
-payload += "            pass\n"
-# The function definition to add the payload into
-search = ""
-search += "def update_agent_lastseen_db(self, sessionID, current_time=None):\n"
-search += '        """\n'
-search += "        Update the agent's last seen timestamp in the database.\n"
-search += '        """\n'
+USAGE (In empire):
+    plugin lumberjack
+"""
 
+import requests
+import functools
+from lib.common.plugins import Plugin
+from lib.common.plugins import Plugin
+import lib.common.helpers as helpers
 
-def main():
-    '''
-    Get the agents file or return a usage message
-    '''
-    try:
-        path = sys.argv[1]
-        agentsFile = join(path, "lib/common/agents.py")
-        if not isfile(agentsFile):
-            raise Exception("Not a file")
-    except Exception as E:
-        print('[!] Please pass the directory of Empire as an argument')
-        quit()
-    # If there is already a backup, move it into the original
-    if isfile(agentsFile+".bak"):
-        copyfile(agentsFile+".bak", agentsFile)
-    else:
-        # Back up the file before we insert anything into it
-        copyfile(agentsFile, agentsFile+".bak")
-    # Read the contents of the file
-    with open(agentsFile, "r") as f:
-        contents = f.read()
-    # Find the index to insert the program into
-    index = contents.index(search) + len(search)
-    # Get the new content with the updated function
-    newcont = contents[:index] + payload + contents[index:]
-    # write the new content to the file
-    with open(agentsFile, "w") as f:
-        f.write(newcont)
-    print("[+] Empire Agents file updated. Please restart empire")
+# anything you simply write out (like a script) will run immediately when the
+# module is imported (before the class is instantiated)
+print("Hello from your new plugin!")
 
+# this class MUST be named Plugin
+class Plugin(Plugin):
+    description = "A plugin to feed session checkins to the pwnboard and Sawmill"
 
-if __name__ == '__main__':
-    main()
+    def onLoad(self):
+        self.mainMenu = None
+        self.pwnboard = "{{ server }}/checkin"
+        self.sawmill = "logs.pwnboard.win"
+        self.sawmillport = 5000
+        #dispatcher.connect(self.event_handler, sender=dispatcher.Any)
+
+    def register(self, mainMenu):
+        """ any modifications to the mainMenu go here - e.g.
+        registering functions to be run by user commands """
+        mainMenu.__class__.do_lumberjack = self.do_lumberjack
+
+        self.mainMenu = mainMenu  # Save this object for later
+
+        # Make the agent checkin call our agent checkin first
+        mainMenu.agents.update_agent_lastseen_db = self.wrapper(
+            mainMenu.agents.update_agent_lastseen_db,
+            self.hook_agent_lastseen_db
+        )
+
+    def do_lumberjack(self, args):
+        """Print the current configuration for lumberjack
+        TODO: allow updates to the URLS
+        """
+        print(helpers.color("[*] Lumberjack plugin has been loaded!"))
+        print(helpers.color("[*] \tPwnboard URL: {}".format(self.pwnboard)))
+        print(helpers.color("[*] \tSawmill URL: {}:{}".format(self.sawmill, self.sawmillport)))
+
+    def hook_agent_lastseen_db(self, sessionID):
+        """Function hook for agents.update_..._db() that will let us know
+        when agents check in"""
+        session_data = self.mainMenu.agents.get_agent_db(sessionID)  # Get the session info
+        victim_ip = session_data['internal_ip'].split()[0]  # Ip of callback
+        #update_pwnboard([victim_ip], name="empire")
+        print(victim_ip, sessionID)
+
+    def wrapper(self, func, func2):
+        @functools.wraps(func)
+        def wrap(*args, **kwargs):
+            func2(*args, **kwargs)
+            return func(*args, **kwargs)
+        return wrap
+
+    def update_pwnboard(ips, name="python"):
+        host = "{{ server }}/generic"
+        data = {'ips': ips, 'type': name}
+        try:
+            req = requests.post(host, json=data, timeout=3)
+            print(req.text)
+            return True
+        except Exception as E:
+            print(E)
+            return False
+
