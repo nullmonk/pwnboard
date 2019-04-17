@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # If there is a toplogy file, but not a board file, generate the baord
 # from the topology.json

@@ -13,6 +13,6 @@ RUN mkdir -p /opt/pwnboard/
 COPY . /opt/pwnboard/
 
 # Build the board file if one isnt given
-RUN bash scripts/setup.sh
+RUN /bin/sh scripts/setup.sh
 
 CMD ["uwsgi", "--yaml", "/opt/pwnboard/config/wsgi.yml"]
