@@ -3,9 +3,27 @@ import datetime
 import time
 import os
 import copy
+import socket
 from . import r, logger, BOARD
-from .functions import send_alert
 
+SYSLOGSOCK = None
+HOST=os.environ.get("SYSLOG_HOST", None)
+PORT=int(os.environ.get("SYSLOG_PORT", -1))
+
+
+def send_syslog(string):
+    """Send a syslog to the server. Make sure the port is open though
+    """
+    if not HOST or PORT == -1:
+        return
+    global SYSLOGSOCK
+    string = string.rstrip() +"\n"
+    if not SYSLOGSOCK:
+        print("Creating socket to", HOST, PORT)
+        SYSLOGSOCK = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        SYSLOGSOCK.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        SYSLOGSOCK.connect((HOST, PORT))
+    SYSLOGSOCK.sendall(string.encode())
 
 def getEpoch():
     '''
@@ -90,6 +108,7 @@ def getTimeDelta(ts):
     except Exception as E:
         return None
 
+
 def saveData(data):
     '''
     Parse updates that come in via POST to the server.
@@ -101,8 +120,10 @@ def saveData(data):
 
     logger.debug("updated beacon for {} from {}".format(data['ip'], data['application']))
     # Fill in default values. Fastest way according to https://stackoverflow.com/a/17501506
-    data['message'] = data['message'] if 'message' in data else ""
-    data['server'] = data['server'] if 'server' in data else ""
+    data['server'] = data['server'] if 'server' in data else "pwnboard"
+    data['message'] = data['message'] if 'message' in data else "Callback received to {}".format(data['server'])
+
+    send_syslog("{application} BOXACCESS {ip} {message}".format(**data))
 
     # save this to the DB
     r.hmset(data['ip'], {
@@ -113,5 +134,3 @@ def saveData(data):
     })
 
 
-def send_alert(message):
-    pass
