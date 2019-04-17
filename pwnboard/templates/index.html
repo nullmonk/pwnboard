@@ -33,13 +33,13 @@
                         <td><b>{{ row['name'] }}</b></td>
                         {% for host in row['hosts'] %}
                             {% if 'online' in host and host.pop('online') %}
-                                {% if alttheme %}
+                                {% if theme == "blue" %}
                                     <td class="bg-danger">
                                 {% else %}
                                     <td class="bg-success">
                                 {% endif %}
                             {% else %}
-                                {% if alttheme %}
+                                {% if theme == "blue" %}
                                     <td class="bg-primary">
                                 {% else %}
                                     <td class="bg-danger">

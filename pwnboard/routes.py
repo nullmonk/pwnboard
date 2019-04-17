@@ -4,13 +4,12 @@ import logging
 from flask import (request, render_template, make_response, Response, url_for,
                    redirect, abort, jsonify)
 
-from .functions import saveData
+#from .functions import saveData
 
 
-from .data import getBoardDict, getEpoch, getAlert
-from . import getConfig, app, logger, r, loadConfig, writeConfig, dumpConfig
+from .data import getBoardDict, getEpoch, getAlert, saveData
+from . import app, logger, r, BOARD
 
-from .tools import sendSlackMsg
 
 # The cache of the main board page
 BOARDCACHE_TIMEOUT = os.environ.get('CACHE_TIME', -1)  # -1 means disabled
@@ -45,9 +44,9 @@ def index():
     # Get the board data and render the template
     error = getAlert()
     board = getBoardDict()
-    alttheme = getConfig('alternate_theme', False)
-    html = render_template('index.html', error=error, alttheme=alttheme,
-                           board=board, teams=getConfig('teams', ()))
+    theme = os.environ.get('PWN_THEME', "blue")
+    html = render_template('index.html', error=error, theme=theme,
+                           board=board, teams=BOARD['teams'])
     # Update the cache and the cache time
     if BOARDCACHE_TIMEOUT == -1:
         BOARDCACHE_TIME = getEpoch()
@@ -67,12 +66,12 @@ def callback():
     # Make sure 'application' is in the data
     if 'application' not in data: return "invalid POST"
 
-    if 'victims' in data and isinstance(data['victims'], list):
-        for victim in data['victims']:
+    if 'ips' in data and isinstance(data['ips'], list):
+        for ip in data['ips']:
             d = dict(data)
-            d['victim'] = victim
+            d['ip'] = ip
             saveData(d)
-    elif 'victim' in data:
+    elif 'ip' in data:
         saveData(data)
     else:
         return 'invalid POST'
@@ -80,7 +79,7 @@ def callback():
     global BOARDCACHE_UPDATED
     BOARDCACHE_UPDATED = True
     return "valid"
-    
+
 
 
 @app.route('/install/<tool>/', methods=['GET'])
@@ -132,22 +131,4 @@ def setmessage():
     if request.form.get('browser', "0") == "1":
         return redirect(url_for('index'))
     # if its an API call then return valid
-    return "Valid"
-
-
-@app.route('/reload', methods=['GET'])
-def reload():
-    loadConfig()
-    return redirect(url_for('index'))
-
-
-@app.route('/dumpconfig', methods=['GET'])
-def dumpRoute():
-    return Response(dumpConfig(), mimetype='application/json')
-
-
-@app.route('/uploadconfig', methods=['POST'])
-def uploadRoute():
-    req = request.get_json(force=True)
-    writeConfig(req)
     return "Valid"

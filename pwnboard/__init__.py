@@ -6,90 +6,23 @@ from flask import Flask
 import os
 import redis
 import json
-import yaml
 import logging
 from os.path import isfile
 
-# Create the topology dict
-CONFIG = {}
+BOARD = []
 
 
-def getConfig(key, default=None):
-    '''
-    Get a value from the config. If it is not there, use the default
-    and log it
-    '''
-    retval = CONFIG
-    for i in key.split("/"):
-        if i in retval:
-            retval = retval[i]
-        else:
-            logger.warn("Missing config value {}, using {}".format(key,
-                                                                   default))
-            return default
-    return retval
-
-
-def dumpConfig():
-    '''
-    Dump the config file
-    '''
-    global CONFIG
-    # Remove all the base hosts information from the config
-    basehosts = CONFIG.pop("base_hosts",None)
-    data = json.dumps(CONFIG, indent=2) + "\n"
-    genBaseHosts()
-    return data
-
-def writeConfig(config = None):
-    '''
-    overwrite the in-memory config file
-    '''
-    global CONFIG
-    # If we are given a new config, update the global to that
-    if config:
-        CONFIG = config
-    # Write the config file
-    with open(CONFIG.get('MAIN_CONF', 'tmp.json'), 'w') as conf:
-        conf.write(json.dumps(CONFIG, indent=2))
-    genBaseHosts()
-
-
-def loadConfig():
-    global CONFIG
-    TOPO_FILE = 'topology.json'
-    #CONFIG_FILE = 'config.yml'
-    #if not isfile(TOPO_FILE):
-    #    TOPO_FILE = "/etc/pwnboard/" + TOPO_FILE
-    #if not isfile(CONFIG_FILE):
-    #    CONFIG_FILE = "/etc/pwnboard/" + CONFIG_FILE
-    # Load a configuration file for the topology
-    with open(TOPO_FILE) as of:
-        CONFIG.update(json.load(of))
-    #with open(CONFIG_FILE) as of:
-    #   CONFIG.update(yaml.load(of))
-    #CONFIG['MAIN_CONF'] = "tmp.json"
-    #writeConfig()
-
-
-def genBaseHosts():
-    # Generate a base host list based on the infrustructure configuration
-    global CONFIG
-    hostsBase = []
-    for network in CONFIG['networks']:
-        netip = network.get("ip", "")
-        for host in network.get("hosts", ()):
-            hostsBase += [{'ip': netip+"."+host.get("ip", "0"),
-                           'name': host.get('name', '')}]
-    # Add the base host list to the config for later use
-    CONFIG['base_hosts'] = hostsBase
-
+def loadBoard():
+    global BOARD
+    fil = os.environ.get("BOARD", "board.json")
+    with open(fil) as fil:
+        BOARD = json.load(fil)
 
 # Create the Flask app
 app = Flask(__name__)
 app.config['STATIC_FOLDER'] = "lib/static"
 logger = logging.getLogger('pwnboard')
-loadConfig()
+loadBoard()
 #logfil = getConfig("server/logfile", "")
 logfil = ""
 # Get the pwnboard logger

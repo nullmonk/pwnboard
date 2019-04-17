@@ -5,9 +5,9 @@ import json
 import time
 import sys
 
-hosts = ["10.2.x.1",  "10.2.x.2", "10.2.x.3", "10.2.x.4", "10.2.x.5",
-         "10.3.x.1", "10.3.x.2", "10.3.x.3"]
-server = "https://pwnboard.win/generic"
+hosts = ["10.x.1.10",  "10.x.1.20", "10.x.1.30", "10.x.1.40", "10.x.1.50",
+         "10.x.2.2", "10.x.2.3", "10.3.x.3"]
+server = "http://localhost/generic"
 
 try:
     loop = int(sys.argv[1])
@@ -15,7 +15,7 @@ except Exception as E:
     loop = 30
 while True:
     ip = random.choice(hosts).replace("x", str(random.randint(1, 10)))
-    data = json.dumps({'ip': ip, "type": "empire"})
+    data = json.dumps({'ip': ip, "application": "empire"})
     headers = {'Content-Type': 'application/json', 'Connection': 'Close'}
     try:
         r = requests.post(server, headers=headers, data=data,

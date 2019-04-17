@@ -2,3 +2,5 @@ pwnboard.log
 *.pyc
 *.swp
 *.venv
+topology.json
+board.json

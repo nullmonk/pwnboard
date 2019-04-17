@@ -2,8 +2,9 @@
 import datetime
 import time
 import os
-from . import getConfig, r, logger, genBaseHosts
-from functions import send_alert
+import copy
+from . import r, logger, BOARD
+from .functions import send_alert
 
 
 def getEpoch():
@@ -19,29 +20,14 @@ def getBoardDict():
     Get all the DB info for each host
     '''
     # Get the teams and the basehost list from the config
-    teams = getConfig("teams", ())
-    baseHosts = getConfig("base_hosts", ())
-    # If there is no base hosts, regen
-    if not baseHosts:
-        genBaseHosts()
-        baseHosts = getConfig("base_hosts", ())
-    # Loop through each host for each team and get the data
-    # Turn this data into JSON for the Jinja template
-    board = []
-    for baseHost in baseHosts:
-        data = {}
-        data['name'] = baseHost.get("name", "UNKNOWN")
-        data['hosts'] = []
-        for team in teams:
-            # Generate the ip and get the host data for the ip
-            ip = baseHost['ip'].replace("x", str(team))
-            # Add the host to the list of hosts
-            data['hosts'] += [getHostData(ip)]
-        board += [data]
+    board = copy.deepcopy(BOARD['board'])
+    for row in board:
+        for _host in row['hosts']:
+            _host.update(getHostData(_host['ip']))
     return board
 
 
-def getHostData(victim):
+def getHostData(ip):
     '''
     Get the host data for a single host.
     Returns and array with the following information:
@@ -49,11 +35,11 @@ def getHostData(victim):
     type - The last service the host called back through
     '''
     # Request the data from the database
-    server, app, last, message, online = r.hmget(victim, ('server', 'application',
+    server, app, last, message, online = r.hmget(ip, ('server', 'application',
                                       'last_seen', 'message', 'online'))
     # Add the data to a dictionary
     status = {}
-    status['victim'] = victim
+    status['ip'] = ip
     # If all the data is None from the DB, just return the blank status
     # stop unneeded calcs. and prevent data from being written to db
     if all([x is None for x in (server, app, last, message, online)]):
@@ -61,21 +47,19 @@ def getHostData(victim):
 
     # Set the last seen time based on time calculations
     last = getTimeDelta(last)
-    if last is None or last > os.environ.get("HOST_TIMEOUT", 2):
-        if online.lower().strip() == "true":
-            logger.warn("{} offline".format(victim))
+    if last > int(os.environ.get("HOST_TIMEOUT", 2)):
+        if online and online.lower().strip() == "true":
+            logger.warn("{} offline".format(ip))
             # Try to send a slack message
-            send_alert("{} went offline".format(victim))
-        status['online'] = False
+            send_alert("{} went offline".format(ip))
+        status['online'] = ""
     else:
-        status['online'] = True
+        status['online'] = "True"
     # Write the status to the database
-    r.hmset(victim, {'online': status['online']})
-    
-    status['Last Seen'] = last
-    status['App'] = app
-    status['Message'] = message
-    status['Server'] = server
+    r.hmset(ip, {'online': status['online']})
+
+    status['Last Seen'] = "{}m".format(last)
+    status['Type'] = app
     return status
 
 
@@ -89,7 +73,7 @@ def getAlert():
     if time is None or msg is None:
         return ""
     # If the time is within X minutes, display the message
-    if time < int(os.environ('ALERT_TIMEOUT', 2)):
+    if time < int(os.environ.get('ALERT_TIMEOUT', 2)):
         return msg
     return ""
 
@@ -105,3 +89,29 @@ def getTimeDelta(ts):
         return minutes
     except Exception as E:
         return None
+
+def saveData(data):
+    '''
+    Parse updates that come in via POST to the server.
+
+    'ip' and 'application' are required in the data
+    '''
+    if data.get('ip', '127.0.0.1').lower() in ["127.0.0.1", "none", None, "null"]:
+        return
+
+    logger.debug("updated beacon for {} from {}".format(data['ip'], data['application']))
+    # Fill in default values. Fastest way according to https://stackoverflow.com/a/17501506
+    data['message'] = data['message'] if 'message' in data else ""
+    data['server'] = data['server'] if 'server' in data else ""
+
+    # save this to the DB
+    r.hmset(data['ip'], {
+        'application': data['application'],
+        'message': data['message'],
+        'server': data['server'],
+        'last_seen': data['last_seen']
+    })
+
+
+def send_alert(message):
+    pass
