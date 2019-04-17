@@ -40,8 +40,8 @@ SH.setFormatter(FMT)
 logger.addHandler(SH)
 logger.setLevel(logging.DEBUG)
 # Create the redis object. Make sure that we decode our responses
-rserver = os.environ.get('database/server', 'localhost')
-rport = os.environ.get('database/port', 6379)
+rserver = os.environ.get('REDIS_HOST', 'localhost')
+rport = os.environ.get('REDIS_PORT', 6379)
 r = redis.StrictRedis(host=rserver, port=rport,
                       charset='utf-8', decode_responses=True)
 
