@@ -90,7 +90,7 @@ def installTools(tool):
     E.g. If you request '/install/empire' you will get a script to run that
     will update your empire with the needed functions
     '''
-    host = getConfig('server/host', 'localhost:80')
+    host = os.environ.get("PWNBOARD_URL", "PWNBOARD_URL")
     # Try to render a template for the tool
     try:
         text = render_template('clients/{}.j2'.format(tool), server=host)

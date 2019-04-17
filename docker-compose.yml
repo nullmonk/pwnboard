@@ -9,6 +9,7 @@ services:
       - FLASK_PORT=5000
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - "PWNBOARD_URL=${PWNBOARD_URL}:${PWNBOARD_PORT}"
       - "SYSLOG_HOST=${SAWMILL_HOST}"
       - "SYSLOG_PORT=${SAWMILL_PORT}"
       - PWN_THEME=blue
