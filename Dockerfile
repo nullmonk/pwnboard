@@ -16,6 +16,6 @@ WORKDIR /opt/pwnboard
 # Build the board file if one isnt given
 RUN /bin/sh scripts/setup.sh
 
-CMD ["python3", "pwnboard,py"]
+CMD ["python3", "pwnboard.py"]
 
 #CMD ["uwsgi", "--yaml", "/opt/pwnboard/config/wsgi.yml"]
