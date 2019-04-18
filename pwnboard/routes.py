@@ -64,7 +64,10 @@ def callback():
         return data['challenge']
     data['last_seen'] = getEpoch()
     # Make sure 'application' is in the data
-    if 'application' not in data: return "invalid POST"
+    if 'application' not in data and 'type' not in data:
+        return "Invalid: Missing 'application' or 'type' in the request"
+
+    if 'type' in data: data['application'] = data['type']
 
     if 'ips' in data and isinstance(data['ips'], list):
         for ip in data['ips']:
