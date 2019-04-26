@@ -61,7 +61,7 @@ class Plugin(Plugin):
         session_data = self.mainMenu.agents.get_agent_db(sessionID)  # Get the session info
         ips = []
         ips += [session_data['internal_ip'].split()[0]]
-        ips += [session_data['external_ip'].split()[0]]
+        # ips += [session_data['external_ip'].split()[0]]  # Use this if you need a different IP
         self.update_pwnboard(ips, name="empire")
 
     def wrapper(self, func, func2):
