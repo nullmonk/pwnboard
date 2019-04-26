@@ -59,8 +59,10 @@ class Plugin(Plugin):
         if not self.activeBoard:
             return
         session_data = self.mainMenu.agents.get_agent_db(sessionID)  # Get the session info
-        victim_ip = session_data['internal_ip'].split()[0]  # Ip of callback
-        self.update_pwnboard([victim_ip], name="empire")
+        ips = []
+        ips += [session_data['internal_ip'].split()[0]]
+        ips += [session_data['external_ip'].split()[0]]
+        self.update_pwnboard(ips, name="empire")
 
     def wrapper(self, func, func2):
         """
@@ -82,7 +84,6 @@ class Plugin(Plugin):
             req = requests.post(host, json=data, timeout=3)
             return True
         except Exception as E:
-            print(E)
             return False
 
     def do_setpwnboard(self, args):
