@@ -18,12 +18,12 @@ def send_syslog(string):
         return
     global SYSLOGSOCK
     string = string.rstrip() +"\n"
-    if not SYSLOGSOCK:
-        print("Creating socket to", HOST, PORT)
-        SYSLOGSOCK = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        SYSLOGSOCK.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        SYSLOGSOCK.connect((HOST, PORT))
     try:
+        if not SYSLOGSOCK:
+            print("Creating socket to", HOST, PORT)
+            SYSLOGSOCK = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            SYSLOGSOCK.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            SYSLOGSOCK.connect((HOST, PORT))
         SYSLOGSOCK.sendall(string.encode())
     except:
         SYSLOGSOCK = None
