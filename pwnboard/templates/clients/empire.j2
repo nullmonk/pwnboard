@@ -9,6 +9,7 @@ USAGE (In empire):
     plugin lumberjack
 """
 
+import datetime
 import requests
 import functools
 from lib.common.plugins import Plugin
@@ -26,12 +27,14 @@ class Plugin(Plugin):
         self.mainMenu = None
         self.pwnboard = "{{ server }}/generic"
         self.sawmill = None
+        self.cache = {}
+        self.cacheTime = 60
 
     def register(self, mainMenu):
         """ any modifications to the mainMenu go here - e.g.
         registering functions to be run by user commands """
-        mainMenu.__class__.do_lumberjack = self.do_lumberjack
-        mainMenu.__class__.do_setpwnboard = self.do_setpwnboard
+        mainMenu.__class__.do_pwnboard_cache = self.do_pwnboard_cache
+        mainMenu.__class__.do_pwnboard_url = self.do_pwnboard_url
         self.mainMenu = mainMenu  # Save this object for later
 
         # Make the agent checkin call our agent checkin first
@@ -42,16 +45,10 @@ class Plugin(Plugin):
         if not self.pwnboard:
             self.activeBoard=False
             print("Warning: PwnBoard URL not set...")
-            print("Use function `setpwnboard <URL>`")
+            print("Use function `pwnboard_url <URL>`")
         else:
             self.activeBoard=True
 
-    def do_lumberjack(self, args):
-        """Print the current configuration for lumberjack
-        TODO: allow updates to the URLS
-        """
-        print(helpers.color("[*] Lumberjack plugin has been loaded!"))
-        print(helpers.color("[*] \tPwnboard URL: {}".format(self.pwnboard)))
 
     def hook_agent_lastseen_db(self, sessionID):
         """Function hook for agents.update_..._db() that will let us know
@@ -62,6 +59,7 @@ class Plugin(Plugin):
         ips = []
         ips += [session_data['internal_ip'].split()[0]]
         # ips += [session_data['external_ip'].split()[0]]  # Use this if you need a different IP
+
         self.update_pwnboard(ips, name="empire")
 
     def wrapper(self, func, func2):
@@ -78,6 +76,15 @@ class Plugin(Plugin):
         """
         Upstream callback IP to the pwnboard
         """
+        ip = ips.pop()
+        # See if we have cached for this IP
+        if ip in self.cache:
+            # If the cache is older than the cacheTime, then update
+            if (datetime.datetime.now() - self.cache[ip]).total_seconds() < self.cacheTime:
+                # We dont need to update
+                return
+        self.cache[ip] = datetime.datetime.now()
+
         host = self.pwnboard
         data = {'ips': ips, 'type': name}
         try:
@@ -86,14 +93,15 @@ class Plugin(Plugin):
         except Exception as E:
             return False
 
-    def do_setpwnboard(self, args):
-        """
-        Set the pwnboard URL using the first argument supplied
-        """
+    def do_pwnboard_url(self, args):
+        """Set the pwnboard URL"""
+        print("Current Pwnboard URL: {}".format(self.pwnboard))
         argArr = args.split(" ")
         def usage():
-            print("USAGE: `setpwnboard <URL>`")
+            print("USAGE: `pwnboard_url <URL>`")
             return False
+        if not args.strip():
+            return usage()
         if len(argArr) != 1:
             return usage()
         if argArr[0].endswith("help"):
@@ -104,3 +112,22 @@ class Plugin(Plugin):
         self.pwnboard=argArr[0]
         self.activeBoard = True
         return True
+
+
+    def do_pwnboard_cache(self, args):
+        """Set the pwnboard cache time"""
+        argArr = args.split(" ")
+        def usage():
+            print("Current Cache Time: {}".format(self.cacheTime))
+            print("USAGE: `pwnboard_cache <SECONDS>`")
+            return False
+
+        if len(argArr) != 1:
+            return usage()
+        if argArr[0].endswith("help"):
+            return usage()
+        try:
+            self.cacheTime = int(argArr[0])
+            return True
+        except ValueError:
+            return usage()
