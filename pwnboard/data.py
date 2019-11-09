@@ -118,7 +118,7 @@ def saveData(data):
 
     'ip' and 'application' are required in the data
     '''
-    if data.get('ip', '127.0.0.1').lower() in ["127.0.0.1", "none", None, "null"]:
+    if str(data.get('ip', '127.0.0.1')).lower() in ["127.0.0.1", "none", None, "null"]:
         return
 
     logger.debug("updated beacon for {} from {}".format(data['ip'], data['application']))
