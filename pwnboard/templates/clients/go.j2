@@ -1,0 +1,40 @@
+// Warning this code is ripped from another project and
+// not meant to be compiled and ran directly. Please PR or
+// make issues for any errors - knif3
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
+
+type PwnBoard struct {
+	IPs  string `json:"ip"`
+	Type string `json:"type"`
+}
+
+func updatepwnBoard(ip string) {
+	url := "{{ server }}/generic"
+
+	// Create the struct
+	data := PwnBoard{
+		IPs:  ip,
+		Type: "GoClient",
+	}
+
+	// Marshal the data
+	sendit, err := json.Marshal(data)
+	if err != nil {
+		fmt.Println("\n[-] ERROR SENDING POST:", err)
+		return
+	}
+
+	// Send the post to pwnboard
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(sendit))
+	if err != nil {
+		fmt.Println("[-] ERROR SENDING POST:", err)
+		return
+	}
+
+	defer resp.Body.Close()
+}
