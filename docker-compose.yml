@@ -12,11 +12,9 @@ services:
       - "PWNBOARD_URL=${PWNBOARD_URL}:${PWNBOARD_PORT}"
       - "SYSLOG_HOST=${SAWMILL_HOST}"
       - "SYSLOG_PORT=${SAWMILL_PORT}"
-      - PWN_THEME=blue
-      #- PWN_THEME="green"
-      - ALERT_TIMEOUT=2  # Minutes to show an alert for
-      - HOST_TIMEOUT=5   # Minutes before a host has 'expired'
       - CACHE_TIME=-1    # Seconds to cache for. set to -1 to disable
+    volumes:
+      - ./board.json:/opt/pwnboard/board.json:ro
 
   redis:
     image: redis:alpine

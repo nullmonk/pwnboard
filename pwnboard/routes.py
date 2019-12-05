@@ -109,6 +109,10 @@ def installTools(tool):
 def setmessage():
     '''
     Updates the message alert at the top of the page
+
+
+    NOTE: This function is currently broken and still uses the CONFIG file.
+    It is advised to change it to environ vars for the docker-compose deployment
     '''
     # If it is a get, return a text box to set the message
     if request.method == 'GET':

@@ -29,5 +29,7 @@ docker-compose up -d
 
 ## Notes about the pwnboard
 
-Make sure that `SAWMILL_HOST` is properly set in the [env file](../../../.env) or PWNBOARD will lag
-when trying to send SYSLOGS to sawmill. If no instance of Sawmill is running, leave it blank.
+Make sure that `SYSLOG_HOST` is receiving connections or PWNBOARD will lag
+when trying to send SYSLOGS. If no syslog server is running, leave it blank.
+
+Further configurations can be made to modify the behavior, the configurations can be set with[Environment Variables](./config.md). 
