@@ -33,3 +33,15 @@ Make sure that `SYSLOG_HOST` is receiving connections or PWNBOARD will lag
 when trying to send SYSLOGS. If no syslog server is running, leave it blank.
 
 Further configurations can be made to modify the behavior, the configurations can be set with[Environment Variables](./config.md). 
+
+
+## SSL
+In the future we would like to get this setup in docker
+Generate Self-Signed SSL certificates
+```
+mkdir /etc/nginx/ssl
+openssl req -x509 -nodes -new -batch -keyout /etc/nginx/ssl/server.key -out /etc/nginx/ssl/server.crt
+```
+
+> If you would like to use LetsEncrypt's Certbot, follow
+[this guide](CERTBOT.md).
