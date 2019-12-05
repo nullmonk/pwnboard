@@ -7,7 +7,7 @@ from flask import (request, render_template, make_response, Response, url_for,
 #from .functions import saveData
 
 
-from .data import getBoardDict, getEpoch, getAlert, saveData
+from .data import getBoardDict, getEpoch, getAlert, saveData, send_syslog
 from . import app, logger, r, BOARD
 
 
@@ -109,19 +109,24 @@ def installTools(tool):
 def setmessage():
     '''
     Updates the message alert at the top of the page
+
+
+    It is advised to change it to environ vars for the docker-compose deployment
     '''
-    # If it is a get, return a text box to set the message
+    alert_time = int(os.environ.get('ALERT_TIMEOUT', 2))
+
+    # GET - return a text box to set the message
     if request.method == 'GET':
-        return Response(render_template('setmessage.html',
-                                        alerttime=getConfig('alert_timeout',
-                                                            1)+1))
+        return Response(render_template('setmessage.html', alerttime=alert_time+1))
+    
+    # POST - Update the message
     msg = request.form.get('message', "")
     if msg == "":
         return "Invalid: 'message' must contain text"
     user = request.form.get('user', "")
     if user == "":
         user = request.remote_addr
-    sendSlackMsg('{} says "{}"'.format(user, msg))
+    #sendSlackMsg('{} says "{}"'.format(user, msg))
     logger.info('{} updated message to "{}"'.format(user, msg))
     # The data stored in redis
     data = {}
@@ -133,5 +138,10 @@ def setmessage():
     # If the message was pushed via the browser, redirect it home
     if request.form.get('browser', "0") == "1":
         return redirect(url_for('index'))
+    
+    # reset the cache so the message is displayed
+    global BOARDCACHE_UPDATED
+    BOARDCACHE_UPDATED = True
+
     # if its an API call then return valid
     return "Valid"

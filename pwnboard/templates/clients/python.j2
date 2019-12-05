@@ -9,6 +9,8 @@ import sys
 
 def sendUpdate(ips, name="python"):
     host = "{{ server }}/generic"
+    # Here ips is a list of IP addresses to update
+    # If we are only updating 1 IP, use "ip" and pass a string
     data = {'ips': ips, 'type': name}
     try:
         req = requests.post(host, json=data, timeout=3)
