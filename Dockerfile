@@ -3,7 +3,7 @@ FROM alpine:latest
 EXPOSE 5000
 
 # Install package dependencies
-RUN apk add --update python3 uwsgi
+RUN apk add --update python3 uwsgi py3-pip
 COPY requirements.txt /tmp/requirements.txt
 RUN pip3 install --upgrade pip
 RUN pip3 install -r /tmp/requirements.txt
