@@ -14,6 +14,7 @@ PORT=int(os.environ.get("SYSLOG_PORT", -1))
 def send_syslog(string):
     """Send a syslog to the server. Make sure the port is open though
     """
+    # TODO: If someone wants to thread this then pwnbaord wont fail if logstash is down
     if not HOST or PORT == -1:
         return
     global SYSLOGSOCK
